@@ -428,3 +428,6 @@ FodyWeavers.xsd
 *.msp
 
 EF_Core_Tool
+
+# Ignore documents folder
+documents/
