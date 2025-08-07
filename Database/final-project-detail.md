@@ -475,18 +475,18 @@ END
 #### a. `sp_CreateVehicleRegistration`
 - Digunakan untuk mencatat administrasi kendaraan (STNK, BPKB, pajak, asuransi) setelah transaksi penjualan.
 - **Parameter:**
-  - `@SalesAgreementID INT`
+  - `@SalesAgreementDetailID INT`
   - `@RegistrationNumber VARCHAR(20)`
   - `@OwnershipBookNumber VARCHAR(20)`
   - `@TaxStatus VARCHAR(20)`
   - `@InsuranceStatus VARCHAR(20)`
 - **Proses:**
-  1. Validasi SalesAgreementID harus ada.
-  2. Pastikan administrasi untuk transaksi ini belum ada.
+  1. Validasi SalesAgreementDetailID harus ada.
+  2. Pastikan administrasi untuk unit ini belum ada.
   3. Insert data ke tabel VehicleRegistration.
 - **Contoh:**
 ```sql
-EXEC sp_CreateVehicleRegistration 1001, 'B1234XYZ', 'BB123456', 'Aktif', 'Aktif';
+EXEC sp_CreateVehicleRegistration 5001, 'B1234XYZ', 'BB123456', 'Aktif', 'Aktif';
 ```
 
 #### b. `sp_CreateCustomerComplaint`
@@ -526,16 +526,16 @@ EXEC sp_CreatePaymentHistory 1001, NULL, 50000000, '2025-07-28', 'DP';
 - Digunakan untuk mencatat klaim garansi kendaraan oleh pelanggan.
 - **Parameter:**
   - `@CustomerID INT`
-  - `@SalesAgreementID INT` (opsional)
+  - `@SalesAgreementDetailID INT`
   - `@ClaimDate DATETIME`
   - `@Description VARCHAR(200)`
   - `@Status VARCHAR(20)`
 - **Proses:**
-  1. Validasi CustomerID dan (jika diisi) SalesAgreementID.
+  1. Validasi CustomerID dan SalesAgreementDetailID.
   2. Insert data ke tabel WarrantyClaim.
 - **Contoh:**
 ```sql
-EXEC sp_CreateWarrantyClaim 2001, 1001, '2025-07-28', 'Klakson mati', 'Open';
+EXEC sp_CreateWarrantyClaim 2001, 5001, '2025-07-28', 'Klakson mati', 'Open';
 ```
 
 ## 8. Functions
@@ -638,7 +638,7 @@ Views menyediakan representasi data yang telah diformat dan disederhanakan untuk
 
 ### f. `vw_WarrantyClaimStatus`
 -   **Tujuan:** Menyediakan ringkasan dari semua klaim garansi yang diajukan pelanggan.
--   **Kolom Utama:** `WarrantyClaimID`, `CustomerName`, `SalesAgreementID`, `TransactionDate`, `ClaimDate`, `ClaimDescription`, `ClaimStatus`.
+-   **Kolom Utama:** `WarrantyClaimID`, `CustomerName`, `SalesAgreementID`, `SalesAgreementDetailID`, `TransactionDate`, `ClaimDate`, `ClaimDescription`, `ClaimStatus`, `CarModel`.
 -   **Penggunaan:** Untuk tim layanan purna jual mengelola dan melacak klaim garansi.
 -   **Contoh Penggunaan:**
     ```sql

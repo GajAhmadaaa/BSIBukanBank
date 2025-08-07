@@ -80,7 +80,7 @@ INSERT INTO PaymentHistory (SalesAgreementID, PaymentAmount, PaymentDate, Paymen
 (1, 590000000, '2025-07-11', 'Transfer');
 
 -- VehicleRegistration
-INSERT INTO VehicleRegistration (SalesAgreementID, RegistrationNumber, OwnershipBookNumber, TaxStatus, InsuranceStatus) VALUES
+INSERT INTO VehicleRegistration (SalesAgreementDetailID, RegistrationNumber, OwnershipBookNumber, TaxStatus, InsuranceStatus) VALUES
 (1, 'B1234XYZ', 'BPKB001', 'Aktif', 'Aktif');
 
 -- CarDelivery
@@ -96,7 +96,7 @@ INSERT INTO PreDeliveryInspection (CarDeliveryID, InspectionDate, InspectorName,
 (1, '2025-07-14', 'Andi Saputra', 'Semua OK');
 
 -- ServiceHistory
-INSERT INTO ServiceHistory (SalesAgreementID, ServiceDate, ServiceType, Note) VALUES
+INSERT INTO ServiceHistory (SalesAgreementDetailID, ServiceDate, ServiceType, Note) VALUES
 (1, '2025-07-25', 'Servis 1.000 km', 'Servis pertama');
 
 -- CustomerFeedback
@@ -108,7 +108,7 @@ INSERT INTO CustomerComplaint (CustomerID, SalesAgreementID, ComplaintDate, Desc
 (1, 1, '2025-07-21', 'AC kurang dingin', 'Open');
 
 -- WarrantyClaim
-INSERT INTO WarrantyClaim (CustomerID, SalesAgreementID, ClaimDate, Description, Status) VALUES
+INSERT INTO WarrantyClaim (CustomerID, SalesAgreementDetailID, ClaimDate, Description, Status) VALUES
 (1, 1, '2025-07-22', 'Klaim garansi AC', 'Diproses');
 
 -- InventoryTransfer
