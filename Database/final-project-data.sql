@@ -9,11 +9,18 @@ INSERT INTO Dealer (Name, City, Address, PhoneNumber) VALUES
 ('Mitsu Prima Motor', 'Surabaya', 'Jl. Basuki Rahmat No. 45', '031-7654321'),
 ('Mitsu Nusantara', 'Bandung', 'Jl. Asia Afrika No. 88', '022-8765432');
 
--- Customer
-INSERT INTO Customer (Name, PhoneNumber, Email, Address) VALUES
-('Budi Santoso', '081234567890', 'budi.santoso@example.com', 'Jl. Merdeka No. 1'),
-('Ani Wijaya', '087654321098', 'ani.wijaya@example.com', 'Jl. Pahlawan No. 10'),
-('Siti Aminah', '082112233445', 'siti.aminah@example.com', 'Jl. Diponegoro No. 5');
+-- Customer (idempotent by Email)
+INSERT INTO Customer (Name, PhoneNumber, Email, Address)
+SELECT 'Budi Santoso', '081234567890', 'budi.santoso@example.com', 'Jl. Merdeka No. 1'
+WHERE NOT EXISTS (SELECT 1 FROM Customer WHERE Email = 'budi.santoso@example.com');
+
+INSERT INTO Customer (Name, PhoneNumber, Email, Address)
+SELECT 'Ani Wijaya', '087654321098', 'ani.wijaya@example.com', 'Jl. Pahlawan No. 10'
+WHERE NOT EXISTS (SELECT 1 FROM Customer WHERE Email = 'ani.wijaya@example.com');
+
+INSERT INTO Customer (Name, PhoneNumber, Email, Address)
+SELECT 'Siti Aminah', '082112233445', 'siti.aminah@example.com', 'Jl. Diponegoro No. 5'
+WHERE NOT EXISTS (SELECT 1 FROM Customer WHERE Email = 'siti.aminah@example.com');
 
 -- SalesPerson
 INSERT INTO SalesPerson (DealerID, Name) VALUES
@@ -35,9 +42,12 @@ INSERT INTO LeasingCompany (Name, Address, PhoneNumber) VALUES
 ('Adira Finance', 'Jl. MT Haryono No. 12', '021-5432198'),
 ('BCA Finance', 'Jl. Setiabudi No. 20', '021-1122334');
 
--- DealerInventory
-INSERT INTO DealerInventory (DealerID, CarID, Stock, Price, DiscountPercent, FeePercent) VALUES
-(1, 1, 5, 500000000, 2, 1);
+-- DealerInventory (idempotent by unique (DealerID, CarID))
+INSERT INTO DealerInventory (DealerID, CarID, Stock, Price, DiscountPercent, FeePercent)
+SELECT 1, 1, 5, 500000000, 2, 1
+WHERE NOT EXISTS (
+  SELECT 1 FROM DealerInventory WHERE DealerID = 1 AND CarID = 1
+);
 
 -- ConsultHistory
 INSERT INTO ConsultHistory (DealerID, CustomerID, SalesPersonID, CarID, Budget, PaymentMethod, ConsultationDate, Note) VALUES

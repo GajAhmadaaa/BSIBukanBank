@@ -431,3 +431,5 @@ EF_Core_Tool
 
 # Ignore documents folder
 documents/
+Database/documents/
+.fake

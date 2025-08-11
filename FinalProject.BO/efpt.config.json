@@ -1,0 +1,146 @@
+﻿{
+   "CodeGenerationMode": 4,
+   "ContextClassName": "FinalProjectContext",
+   "ContextNamespace": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "MinimumProductVersion": "2.6.0",
+   "ModelNamespace": null,
+   "OutputContextPath": null,
+   "OutputPath": "Models",
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "FinalProject.BO",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 2,
+   "SelectedToBeGenerated": 0,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "[dbo].[Booking]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Car]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[CarDelivery]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[CarDeliverySchedule]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ConsultHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[CreditApplication]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[CreditDocument]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Customer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[CustomerComplaint]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[CustomerFeedback]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Dealer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DealerInventory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[InventoryTransfer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[LeasingCompany]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[LetterOfIntent]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[LetterOfIntentDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PaymentHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PreDeliveryInspection]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SalesAgreement]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SalesAgreementDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SalesPerson]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ServiceHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TestDrive]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[VehicleRegistration]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[WarrantyClaim]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": null,
+   "UncountableWords": null,
+   "UseAsyncStoredProcedureCalls": true,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDatabaseNamesForRoutines": true,
+   "UseDateOnlyTimeOnly": true,
+   "UseDbContextSplitting": false,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": true,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UsePrefixNavigationNaming": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false,
+   "UseT4Split": false
+}
