@@ -1,3 +1,4 @@
+using AutoMapper;
 using FinalProject.BL.DTO;
 using FinalProject.BL.Interfaces;
 using FinalProject.BO.Models;
@@ -7,65 +8,93 @@ using System.Threading.Tasks;
 
 namespace FinalProject.BL.BL
 {
+    /// <summary>
+    /// Lapisan logika bisnis untuk SalesAgreement.
+    /// </summary>
     public class SalesAgreementBL : ISalesAgreementBL
     {
         private readonly ISalesAgreement _salesAgreementDAL;
+        private readonly IMapper _mapper;
 
-        public SalesAgreementBL(ISalesAgreement salesAgreementDAL)
+        /// <summary>
+        /// Menginisialisasi instance baru dari kelas <see cref="SalesAgreementBL"/>.
+        /// </summary>
+        /// <param name="salesAgreementDAL">Lapisan akses data untuk SalesAgreement.</param>
+        /// <param name="mapper">Mapper untuk mapping objek.</param>
+        public SalesAgreementBL(ISalesAgreement salesAgreementDAL, IMapper mapper)
         {
             _salesAgreementDAL = salesAgreementDAL;
+            _mapper = mapper;
         }
 
-        public async Task CreateAsync(SalesAgreementDTO salesAgreement)
+        /// <summary>
+        /// Membuat perjanjian penjualan baru.
+        /// </summary>
+        /// <param name="salesAgreement">DTO perjanjian penjualan yang akan dibuat.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron.</returns>
+        public async Task<SalesAgreementViewDTO> CreateAsync(SalesAgreementInsertDTO salesAgreement)
         {
-            var newSalesAgreement = new SalesAgreement
-            {
-                DealerId = salesAgreement.DealerId,
-                CustomerId = salesAgreement.CustomerId,
-                SalesPersonId = salesAgreement.SalesPersonId,
-                Loiid = salesAgreement.Loiid,
-                TransactionDate = salesAgreement.TransactionDate,
-                TotalAmount = salesAgreement.TotalAmount,
-                Status = salesAgreement.Status
-            };
+            // Validasi dasar bisa ditambahkan di sini jika diperlukan
+            // Misalnya, memastikan TotalAmount positif, Status valid, dll.
+            
+            var newSalesAgreement = _mapper.Map<SalesAgreement>(salesAgreement);
             await _salesAgreementDAL.CreateAsync(newSalesAgreement);
+            return _mapper.Map<SalesAgreementViewDTO>(newSalesAgreement);
         }
 
+        /// <summary>
+        /// Menghapus perjanjian penjualan berdasarkan ID-nya.
+        /// </summary>
+        /// <param name="id">ID perjanjian penjualan yang akan dihapus.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron.</returns>
         public async Task DeleteAsync(int id)
         {
             await _salesAgreementDAL.DeleteAsync(id);
         }
 
-        public async Task<IEnumerable<SalesAgreement>> GetAllAsync()
+        /// <summary>
+        /// Mendapatkan semua perjanjian penjualan.
+        /// </summary>
+        /// <returns>Tugas yang mewakili operasi asinkron, dengan koleksi DTO perjanjian penjualan.</returns>
+        public async Task<IEnumerable<SalesAgreementViewDTO>> GetAllAsync()
         {
-            return await _salesAgreementDAL.GetAllAsync();
+            var salesAgreements = await _salesAgreementDAL.GetAllAsync();
+            return _mapper.Map<IEnumerable<SalesAgreementViewDTO>>(salesAgreements);
         }
 
-        public async Task<SalesAgreement> GetByIdAsync(int id)
+        /// <summary>
+        /// Mendapatkan perjanjian penjualan berdasarkan ID-nya.
+        /// </summary>
+        /// <param name="id">ID perjanjian penjualan yang akan diambil.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron, dengan DTO perjanjian penjualan, atau null jika tidak ditemukan.</returns>
+        public async Task<SalesAgreementViewDTO?> GetByIdAsync(int id)
         {
             var salesAgreement = await _salesAgreementDAL.GetByIdAsync(id);
             if (salesAgreement == null)
             {
-                // Return a new SalesAgreement or handle as appropriate
-                return new SalesAgreement();
+                return null;
             }
-            return salesAgreement;
+            return _mapper.Map<SalesAgreementViewDTO>(salesAgreement);
         }
 
-        public async Task UpdateAsync(int id, SalesAgreementDTO salesAgreement)
+        /// <summary>
+        /// Memperbarui perjanjian penjualan yang sudah ada.
+        /// </summary>
+        /// <param name="id">ID perjanjian penjualan yang akan diperbarui.</param>
+        /// <param name="salesAgreement">DTO perjanjian penjualan yang diperbarui.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron.</returns>
+        public async Task<SalesAgreementViewDTO> UpdateAsync(int id, SalesAgreementUpdateDTO salesAgreement)
         {
+            // Validasi dasar bisa ditambahkan di sini jika diperlukan
+            
             var existingSalesAgreement = await _salesAgreementDAL.GetByIdAsync(id);
             if (existingSalesAgreement != null)
             {
-                existingSalesAgreement.DealerId = salesAgreement.DealerId;
-                existingSalesAgreement.CustomerId = salesAgreement.CustomerId;
-                existingSalesAgreement.SalesPersonId = salesAgreement.SalesPersonId;
-                existingSalesAgreement.Loiid = salesAgreement.Loiid;
-                existingSalesAgreement.TransactionDate = salesAgreement.TransactionDate;
-                existingSalesAgreement.TotalAmount = salesAgreement.TotalAmount;
-                existingSalesAgreement.Status = salesAgreement.Status;
+                _mapper.Map(salesAgreement, existingSalesAgreement);
                 await _salesAgreementDAL.UpdateAsync(existingSalesAgreement);
+                return _mapper.Map<SalesAgreementViewDTO>(existingSalesAgreement);
             }
+            return null;
         }
     }
 }

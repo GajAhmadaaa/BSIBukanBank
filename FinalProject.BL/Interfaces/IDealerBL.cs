@@ -6,10 +6,10 @@ namespace FinalProject.BL.Interfaces
 {
     public interface IDealerBL
     {
-        Task<IEnumerable<DealerDTO>> GetAllDealers();
-        Task<DealerDTO> GetDealerById(int id);
-        Task CreateDealer(DealerDTO dealer);
-        Task UpdateDealer(DealerDTO dealer);
+        Task<IEnumerable<DealerViewDTO>> GetAllDealers();
+        Task<DealerViewDTO> GetDealerById(int id);
+        Task<DealerViewDTO> CreateDealer(DealerInsertDTO dealer);
+        Task<DealerViewDTO> UpdateDealer(DealerUpdateDTO dealer);
         Task DeleteDealer(int id);
     }
 }

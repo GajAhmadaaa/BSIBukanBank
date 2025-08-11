@@ -1,9 +1,9 @@
+using AutoMapper;
 using FinalProject.BL.DTO;
 using FinalProject.BL.Interfaces;
 using FinalProject.BO.Models;
 using FinalProject.DAL.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace FinalProject.BL.BL
@@ -11,22 +11,19 @@ namespace FinalProject.BL.BL
     public class DealerBL : IDealerBL
     {
         private readonly IDealer _dealerDAL;
+        private readonly IMapper _mapper;
 
-        public DealerBL(IDealer dealerDAL)
+        public DealerBL(IDealer dealerDAL, IMapper mapper)
         {
             _dealerDAL = dealerDAL;
+            _mapper = mapper;
         }
 
-        public async Task CreateDealer(DealerDTO dealer)
+        public async Task<DealerViewDTO> CreateDealer(DealerInsertDTO dealer)
         {
-            var newDealer = new Dealer
-            {
-                Name = dealer.Name,
-                City = dealer.City,
-                Address = dealer.Address,
-                PhoneNumber = dealer.PhoneNumber
-            };
+            var newDealer = _mapper.Map<Dealer>(dealer);
             await _dealerDAL.CreateAsync(newDealer);
+            return _mapper.Map<DealerViewDTO>(newDealer);
         }
 
         public async Task DeleteDealer(int id)
@@ -34,47 +31,32 @@ namespace FinalProject.BL.BL
             await _dealerDAL.DeleteAsync(id);
         }
 
-        public async Task<IEnumerable<DealerDTO>> GetAllDealers()
+        public async Task<IEnumerable<DealerViewDTO>> GetAllDealers()
         {
             var dealers = await _dealerDAL.GetAllAsync();
-            return dealers.Select(d => new DealerDTO
-            {
-                DealerId = d.DealerId,
-                Name = d.Name,
-                City = d.City,
-                Address = d.Address,
-                PhoneNumber = d.PhoneNumber
-            });
+            return _mapper.Map<IEnumerable<DealerViewDTO>>(dealers);
         }
 
-        public async Task<DealerDTO> GetDealerById(int id)
+        public async Task<DealerViewDTO> GetDealerById(int id)
         {
             var dealer = await _dealerDAL.GetByIdAsync(id);
             if (dealer == null)
             {
                 return null;
             }
-            return new DealerDTO
-            {
-                DealerId = dealer.DealerId,
-                Name = dealer.Name,
-                City = dealer.City,
-                Address = dealer.Address,
-                PhoneNumber = dealer.PhoneNumber
-            };
+            return _mapper.Map<DealerViewDTO>(dealer);
         }
 
-        public async Task UpdateDealer(DealerDTO dealer)
+        public async Task<DealerViewDTO> UpdateDealer(DealerUpdateDTO dealer)
         {
             var existingDealer = await _dealerDAL.GetByIdAsync(dealer.DealerId);
             if (existingDealer != null)
             {
-                existingDealer.Name = dealer.Name;
-                existingDealer.City = dealer.City;
-                existingDealer.Address = dealer.Address;
-                existingDealer.PhoneNumber = dealer.PhoneNumber;
+                _mapper.Map(dealer, existingDealer);
                 await _dealerDAL.UpdateAsync(existingDealer);
+                return _mapper.Map<DealerViewDTO>(existingDealer);
             }
+            return null;
         }
     }
 }

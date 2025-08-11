@@ -6,10 +6,10 @@ namespace FinalProject.BL.Interfaces
 {
     public interface ICarBL
     {
-        Task<IEnumerable<CarDTO>> GetAllCars();
-        Task<CarDTO> GetCarById(int id);
-        Task CreateCar(CarDTO car);
-        Task UpdateCar(CarDTO car);
+        Task<IEnumerable<CarViewDTO>> GetAllCars();
+        Task<CarViewDTO> GetCarById(int id);
+        Task<CarViewDTO> CreateCar(CarInsertDTO car);
+        Task<CarViewDTO> UpdateCar(CarUpdateDTO car);
         Task DeleteCar(int id);
     }
 }

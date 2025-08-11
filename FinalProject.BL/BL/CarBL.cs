@@ -1,9 +1,9 @@
+using AutoMapper;
 using FinalProject.BL.DTO;
 using FinalProject.BL.Interfaces;
 using FinalProject.BO.Models;
 using FinalProject.DAL.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace FinalProject.BL.BL
@@ -11,23 +11,19 @@ namespace FinalProject.BL.BL
     public class CarBL : ICarBL
     {
         private readonly ICar _carDAL;
+        private readonly IMapper _mapper;
 
-        public CarBL(ICar carDAL)
+        public CarBL(ICar carDAL, IMapper mapper)
         {
             _carDAL = carDAL;
+            _mapper = mapper;
         }
 
-        public async Task CreateCar(CarDTO car)
+        public async Task<CarViewDTO> CreateCar(CarInsertDTO car)
         {
-            var newCar = new Car
-            {
-                Model = car.Model,
-                CarType = car.CarType,
-                BasePrice = car.BasePrice,
-                Year = car.Year,
-                Color = car.Color
-            };
+            var newCar = _mapper.Map<Car>(car);
             await _carDAL.CreateAsync(newCar);
+            return _mapper.Map<CarViewDTO>(newCar);
         }
 
         public async Task DeleteCar(int id)
@@ -35,50 +31,32 @@ namespace FinalProject.BL.BL
             await _carDAL.DeleteAsync(id);
         }
 
-        public async Task<IEnumerable<CarDTO>> GetAllCars()
+        public async Task<IEnumerable<CarViewDTO>> GetAllCars()
         {
             var cars = await _carDAL.GetAllAsync();
-            return cars.Select(c => new CarDTO
-            {
-                CarId = c.CarId,
-                Model = c.Model,
-                CarType = c.CarType,
-                BasePrice = c.BasePrice,
-                Year = c.Year,
-                Color = c.Color
-            });
+            return _mapper.Map<IEnumerable<CarViewDTO>>(cars);
         }
 
-        public async Task<CarDTO> GetCarById(int id)
+        public async Task<CarViewDTO> GetCarById(int id)
         {
             var car = await _carDAL.GetByIdAsync(id);
             if (car == null)
             {
                 return null;
             }
-            return new CarDTO
-            {
-                CarId = car.CarId,
-                Model = car.Model,
-                CarType = car.CarType,
-                BasePrice = car.BasePrice,
-                Year = car.Year,
-                Color = car.Color
-            };
+            return _mapper.Map<CarViewDTO>(car);
         }
 
-        public async Task UpdateCar(CarDTO car)
+        public async Task<CarViewDTO> UpdateCar(CarUpdateDTO car)
         {
             var existingCar = await _carDAL.GetByIdAsync(car.CarId);
             if (existingCar != null)
             {
-                existingCar.Model = car.Model;
-                existingCar.CarType = car.CarType;
-                existingCar.BasePrice = car.BasePrice;
-                existingCar.Year = car.Year;
-                existingCar.Color = car.Color;
+                _mapper.Map(car, existingCar);
                 await _carDAL.UpdateAsync(existingCar);
+                return _mapper.Map<CarViewDTO>(existingCar);
             }
+            return null;
         }
     }
 }

@@ -1,3 +1,4 @@
+using AutoMapper;
 using FinalProject.BL.DTO;
 using FinalProject.BL.Interfaces;
 using FinalProject.BO.Models;
@@ -7,67 +8,93 @@ using System.Threading.Tasks;
 
 namespace FinalProject.BL.BL
 {
+    /// <summary>
+    /// Lapisan logika bisnis untuk LetterOfIntent.
+    /// </summary>
     public class LetterOfIntentBL : ILetterOfIntentBL
     {
         private readonly ILetterOfIntent _letterOfIntentDAL;
+        private readonly IMapper _mapper;
 
-        public LetterOfIntentBL(ILetterOfIntent letterOfIntentDAL)
+        /// <summary>
+        /// Menginisialisasi instance baru dari kelas <see cref="LetterOfIntentBL"/>.
+        /// </summary>
+        /// <param name="letterOfIntentDAL">Lapisan akses data untuk LetterOfIntent.</param>
+        /// <param name="mapper">Mapper untuk mapping objek.</param>
+        public LetterOfIntentBL(ILetterOfIntent letterOfIntentDAL, IMapper mapper)
         {
             _letterOfIntentDAL = letterOfIntentDAL;
+            _mapper = mapper;
         }
 
-        public async Task CreateAsync(LetterOfIntentDTO letterOfIntent)
+        /// <summary>
+        /// Membuat surat niat baru.
+        /// </summary>
+        /// <param name="letterOfIntent">DTO surat niat yang akan dibuat.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron.</returns>
+        public async Task<LetterOfIntentViewDTO> CreateAsync(LetterOfIntentInsertDTO letterOfIntent)
         {
-            var newLetterOfIntent = new LetterOfIntent
-            {
-                DealerId = letterOfIntent.DealerId,
-                CustomerId = letterOfIntent.CustomerId,
-                SalesPersonId = letterOfIntent.SalesPersonId,
-                ConsultHistoryId = letterOfIntent.ConsultHistoryId,
-                TestDriveId = letterOfIntent.TestDriveId,
-                Loidate = letterOfIntent.Loidate,
-                PaymentMethod = letterOfIntent.PaymentMethod,
-                Note = letterOfIntent.Note
-            };
+            // Validasi dasar bisa ditambahkan di sini jika diperlukan
+            // Misalnya, memastikan tanggal tidak di masa depan terlalu jauh, dll.
+            
+            var newLetterOfIntent = _mapper.Map<LetterOfIntent>(letterOfIntent);
             await _letterOfIntentDAL.CreateAsync(newLetterOfIntent);
+            return _mapper.Map<LetterOfIntentViewDTO>(newLetterOfIntent);
         }
 
+        /// <summary>
+        /// Menghapus surat niat berdasarkan ID-nya.
+        /// </summary>
+        /// <param name="id">ID surat niat yang akan dihapus.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron.</returns>
         public async Task DeleteAsync(int id)
         {
             await _letterOfIntentDAL.DeleteAsync(id);
         }
 
-        public async Task<IEnumerable<LetterOfIntent>> GetAllAsync()
+        /// <summary>
+        /// Mendapatkan semua surat niat.
+        /// </summary>
+        /// <returns>Tugas yang mewakili operasi asinkron, dengan koleksi DTO surat niat.</returns>
+        public async Task<IEnumerable<LetterOfIntentViewDTO>> GetAllAsync()
         {
-            return await _letterOfIntentDAL.GetAllAsync();
+            var letterOfIntents = await _letterOfIntentDAL.GetAllAsync();
+            return _mapper.Map<IEnumerable<LetterOfIntentViewDTO>>(letterOfIntents);
         }
 
-        public async Task<LetterOfIntent> GetByIdAsync(int id)
+        /// <summary>
+        /// Mendapatkan surat niat berdasarkan ID-nya.
+        /// </summary>
+        /// <param name="id">ID surat niat yang akan diambil.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron, dengan DTO surat niat, atau null jika tidak ditemukan.</returns>
+        public async Task<LetterOfIntentViewDTO?> GetByIdAsync(int id)
         {
             var letterOfIntent = await _letterOfIntentDAL.GetByIdAsync(id);
             if (letterOfIntent == null)
             {
-                // Return a new LetterOfIntent or handle as appropriate
-                return new LetterOfIntent();
+                return null;
             }
-            return letterOfIntent;
+            return _mapper.Map<LetterOfIntentViewDTO>(letterOfIntent);
         }
 
-        public async Task UpdateAsync(int id, LetterOfIntentDTO letterOfIntent)
+        /// <summary>
+        /// Memperbarui surat niat yang sudah ada.
+        /// </summary>
+        /// <param name="id">ID surat niat yang akan diperbarui.</param>
+        /// <param name="letterOfIntent">DTO surat niat yang diperbarui.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron.</returns>
+        public async Task<LetterOfIntentViewDTO> UpdateAsync(int id, LetterOfIntentUpdateDTO letterOfIntent)
         {
+            // Validasi dasar bisa ditambahkan di sini jika diperlukan
+            
             var existingLetterOfIntent = await _letterOfIntentDAL.GetByIdAsync(id);
             if (existingLetterOfIntent != null)
             {
-                existingLetterOfIntent.DealerId = letterOfIntent.DealerId;
-                existingLetterOfIntent.CustomerId = letterOfIntent.CustomerId;
-                existingLetterOfIntent.SalesPersonId = letterOfIntent.SalesPersonId;
-                existingLetterOfIntent.ConsultHistoryId = letterOfIntent.ConsultHistoryId;
-                existingLetterOfIntent.TestDriveId = letterOfIntent.TestDriveId;
-                existingLetterOfIntent.Loidate = letterOfIntent.Loidate;
-                existingLetterOfIntent.PaymentMethod = letterOfIntent.PaymentMethod;
-                existingLetterOfIntent.Note = letterOfIntent.Note;
+                _mapper.Map(letterOfIntent, existingLetterOfIntent);
                 await _letterOfIntentDAL.UpdateAsync(existingLetterOfIntent);
+                return _mapper.Map<LetterOfIntentViewDTO>(existingLetterOfIntent);
             }
+            return null;
         }
     }
 }

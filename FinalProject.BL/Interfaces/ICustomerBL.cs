@@ -6,10 +6,10 @@ namespace FinalProject.BL.Interfaces
 {
     public interface ICustomerBL
     {
-        Task<IEnumerable<CustomerDTO>> GetAllCustomers();
-        Task<CustomerDTO> GetCustomerById(int id);
-        Task CreateCustomer(CustomerDTO customer);
-        Task UpdateCustomer(CustomerDTO customer);
+        Task<IEnumerable<CustomerViewDTO>> GetAllCustomers();
+        Task<CustomerViewDTO> GetCustomerById(int id);
+        Task<CustomerViewDTO> CreateCustomer(CustomerInsertDTO customer);
+        Task<CustomerViewDTO> UpdateCustomer(CustomerUpdateDTO customer);
         Task DeleteCustomer(int id);
     }
 }

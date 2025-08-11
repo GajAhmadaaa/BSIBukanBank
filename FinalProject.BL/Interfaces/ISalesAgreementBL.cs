@@ -1,4 +1,3 @@
-using FinalProject.BO.Models;
 using FinalProject.BL.DTO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,10 +6,10 @@ namespace FinalProject.BL.Interfaces
 {
     public interface ISalesAgreementBL
     {
-        Task<IEnumerable<SalesAgreement>> GetAllAsync();
-        Task<SalesAgreement> GetByIdAsync(int id);
-        Task CreateAsync(SalesAgreementDTO salesAgreement);
-        Task UpdateAsync(int id, SalesAgreementDTO salesAgreement);
+        Task<IEnumerable<SalesAgreementViewDTO>> GetAllAsync();
+        Task<SalesAgreementViewDTO?> GetByIdAsync(int id);
+        Task<SalesAgreementViewDTO> CreateAsync(SalesAgreementInsertDTO salesAgreement);
+        Task<SalesAgreementViewDTO> UpdateAsync(int id, SalesAgreementUpdateDTO salesAgreement);
         Task DeleteAsync(int id);
     }
 }

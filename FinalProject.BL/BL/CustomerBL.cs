@@ -1,9 +1,9 @@
+using AutoMapper;
 using FinalProject.BL.DTO;
 using FinalProject.BL.Interfaces;
 using FinalProject.BO.Models;
 using FinalProject.DAL.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace FinalProject.BL.BL
@@ -11,22 +11,19 @@ namespace FinalProject.BL.BL
     public class CustomerBL : ICustomerBL
     {
         private readonly ICustomer _customerDAL;
+        private readonly IMapper _mapper;
 
-        public CustomerBL(ICustomer customerDAL)
+        public CustomerBL(ICustomer customerDAL, IMapper mapper)
         {
             _customerDAL = customerDAL;
+            _mapper = mapper;
         }
 
-        public async Task CreateCustomer(CustomerDTO customer)
+        public async Task<CustomerViewDTO> CreateCustomer(CustomerInsertDTO customer)
         {
-            var newCustomer = new Customer
-            {
-                Name = customer.Name,
-                PhoneNumber = customer.PhoneNumber,
-                Email = customer.Email,
-                Address = customer.Address
-            };
+            var newCustomer = _mapper.Map<Customer>(customer);
             await _customerDAL.CreateAsync(newCustomer);
+            return _mapper.Map<CustomerViewDTO>(newCustomer);
         }
 
         public async Task DeleteCustomer(int id)
@@ -34,47 +31,32 @@ namespace FinalProject.BL.BL
             await _customerDAL.DeleteAsync(id);
         }
 
-        public async Task<IEnumerable<CustomerDTO>> GetAllCustomers()
+        public async Task<IEnumerable<CustomerViewDTO>> GetAllCustomers()
         {
             var customers = await _customerDAL.GetAllAsync();
-            return customers.Select(c => new CustomerDTO
-            {
-                CustomerId = c.CustomerId,
-                Name = c.Name,
-                PhoneNumber = c.PhoneNumber,
-                Email = c.Email,
-                Address = c.Address
-            });
+            return _mapper.Map<IEnumerable<CustomerViewDTO>>(customers);
         }
 
-        public async Task<CustomerDTO> GetCustomerById(int id)
+        public async Task<CustomerViewDTO> GetCustomerById(int id)
         {
             var customer = await _customerDAL.GetByIdAsync(id);
             if (customer == null)
             {
                 return null;
             }
-            return new CustomerDTO
-            {
-                CustomerId = customer.CustomerId,
-                Name = customer.Name,
-                PhoneNumber = customer.PhoneNumber,
-                Email = customer.Email,
-                Address = customer.Address
-            };
+            return _mapper.Map<CustomerViewDTO>(customer);
         }
 
-        public async Task UpdateCustomer(CustomerDTO customer)
+        public async Task<CustomerViewDTO> UpdateCustomer(CustomerUpdateDTO customer)
         {
             var existingCustomer = await _customerDAL.GetByIdAsync(customer.CustomerId);
             if (existingCustomer != null)
             {
-                existingCustomer.Name = customer.Name;
-                existingCustomer.PhoneNumber = customer.PhoneNumber;
-                existingCustomer.Email = customer.Email;
-                existingCustomer.Address = customer.Address;
+                _mapper.Map(customer, existingCustomer);
                 await _customerDAL.UpdateAsync(existingCustomer);
+                return _mapper.Map<CustomerViewDTO>(existingCustomer);
             }
+            return null;
         }
     }
 }
