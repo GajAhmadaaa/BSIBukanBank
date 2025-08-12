@@ -1,0 +1,41 @@
+@{
+    ViewData["Title"] = "Contact";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>This is a protected page. You can only see this if you are logged in.</p>
+
+<div class="row">
+    <div class="col-md-6">
+        <h2>Contact Information</h2>
+        <address>
+            <strong>Dealer Mobil</strong><br>
+            Jl. Merdeka No. 123, Jakarta<br>
+            <abbr title="Phone">P:</abbr>
+            (021) 123-4567
+        </address>
+
+        <address>
+            <strong>Support:</strong> <a href="mailto:Support@example.com">Support@dealermobil.com</a><br />
+            <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@dealermobil.com</a>
+        </address>
+    </div>
+    <div class="col-md-6">
+        <h2>Send us a message</h2>
+        <form>
+            <div class="form-group mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" placeholder="Enter your name">
+            </div>
+            <div class="form-group mb-3">
+                <label for="email" class="form-label">Email address</label>
+                <input type="email" class="form-control" id="email" placeholder="Enter your email">
+            </div>
+            <div class="form-group mb-3">
+                <label for="message" class="form-label">Message</label>
+                <textarea class="form-control" id="message" rows="5" placeholder="Enter your message"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Send Message</button>
+        </form>
+    </div>
+</div>

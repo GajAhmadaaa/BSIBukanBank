@@ -2,6 +2,14 @@
     ViewData["Title"] = "Dealer Mobil Terpercaya";
 }
 
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Selamat datang kembali, @User.Identity.Name!</strong> Anda telah berhasil login.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <!-- Hero Section -->
 <div class="jumbotron jumbotron-fluid bg-primary text-white" style="background: linear-gradient(135deg, #007bff, #0056b3);">
     <div class="container py-5">
@@ -10,7 +18,14 @@
                 <h1 class="display-4 fw-bold">Selamat Datang di Dealer Mobil Premium</h1>
                 <p class="lead">Temukan mobil impian Anda dengan penawaran terbaik dan layanan berkualitas tinggi.</p>
                 <div class="mt-4">
-                    <a href="@Url.Action("Index", "Customer")" class="btn btn-light btn-lg me-3">Daftar Customer</a>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a href="@Url.Action("Index", "Customer")" class="btn btn-light btn-lg me-3">Order Mobil</a>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("Login", "Account")" class="btn btn-light btn-lg me-3">Order Mobil</a>
+                    }
                     <a href="@Url.Action("Index", "TestDrive")" class="btn btn-outline-light btn-lg">Jadwal Test Drive</a>
                 </div>
             </div>

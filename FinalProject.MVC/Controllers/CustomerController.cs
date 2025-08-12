@@ -1,10 +1,12 @@
 using FinalProject.BL.Interfaces;
 using FinalProject.BO.Models;
 using FinalProject.MVC.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinalProject.MVC.Controllers
 {
+    [Authorize]
     public class CustomerController : Controller
     {
         //private readonly ICustomerService _customerService;

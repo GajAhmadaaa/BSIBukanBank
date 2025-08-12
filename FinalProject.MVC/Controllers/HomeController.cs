@@ -1,4 +1,5 @@
 using FinalProject.MVC.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -15,6 +16,13 @@ namespace FinalProject.MVC.Controllers
 
         public IActionResult Index()
         {
+            return View();
+        }
+
+        [Authorize]
+        public IActionResult Contact()
+        {
+            ViewData["Message"] = "Your contact page.";
             return View();
         }
 
