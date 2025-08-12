@@ -1,9 +1,15 @@
 using FinalProject.BO.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FinalProject.DAL.Interfaces
 {
     public interface ISalesAgreement : ICrud<SalesAgreement>
     {
+        // Method untuk memuat detail
+        Task<IEnumerable<SalesAgreement>> GetAllWithDetailsAsync();
+        Task<SalesAgreement?> GetByIdWithDetailsAsync(int id);
+        
         // Menambahkan satu detail ke sales agreement.
         Task AddDetailAsync(int agreementId, SalesAgreementDetail detail);
 

@@ -103,5 +103,47 @@ namespace FinalProject.DAL.DAL
                 await _context.SaveChangesAsync();
             }
         }
+        
+        // Method untuk mendapatkan semua data dengan detail
+        public async Task<IEnumerable<LetterOfIntent>> GetAllWithDetailsAsync()
+        {
+            try
+            {
+                return await _dbSet
+                    .Include(l => l.LetterOfIntentDetails)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Gagal mengambil data: {ex.Message}", ex);
+            }
+        }
+        
+        // Override GetAllAsync untuk kembali ke perilaku default (tanpa detail)
+        public new async Task<IEnumerable<LetterOfIntent>> GetAllAsync()
+        {
+            return await base.GetAllAsync();
+        }
+        
+        // Method untuk mendapatkan data berdasarkan ID dengan detail
+        public async Task<LetterOfIntent?> GetByIdWithDetailsAsync(int id)
+        {
+            try
+            {
+                return await _dbSet
+                    .Include(l => l.LetterOfIntentDetails)
+                    .FirstOrDefaultAsync(l => l.Loiid == id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Gagal mengambil data berdasarkan ID: {ex.Message}", ex);
+            }
+        }
+        
+        // Override GetByIdAsync untuk kembali ke perilaku default (tanpa detail)
+        public new async Task<LetterOfIntent?> GetByIdAsync(int id)
+        {
+            return await base.GetByIdAsync(id);
+        }
     }
 }

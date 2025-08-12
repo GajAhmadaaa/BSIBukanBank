@@ -1,9 +1,14 @@
 using FinalProject.BO.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FinalProject.DAL.Interfaces
 {
     public interface ILetterOfIntent : ICrud<LetterOfIntent>
     {
+        // Method untuk memuat detail
+        Task<IEnumerable<LetterOfIntent>> GetAllWithDetailsAsync();
+        Task<LetterOfIntent?> GetByIdWithDetailsAsync(int id);
 
         // Operasi satuan untuk detail LOI
         Task AddDetailAsync(int loiId, LetterOfIntentDetail detail);

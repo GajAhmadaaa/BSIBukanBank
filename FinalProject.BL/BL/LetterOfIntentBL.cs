@@ -4,6 +4,7 @@ using FinalProject.BL.Interfaces;
 using FinalProject.BO.Models;
 using FinalProject.DAL.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace FinalProject.BL.BL
@@ -40,6 +41,32 @@ namespace FinalProject.BL.BL
             var newLetterOfIntent = _mapper.Map<LetterOfIntent>(letterOfIntent);
             await _letterOfIntentDAL.CreateAsync(newLetterOfIntent);
             return _mapper.Map<LetterOfIntentViewDTO>(newLetterOfIntent);
+        }
+
+        /// <summary>
+        /// Membuat surat niat baru beserta detail-detailnya.
+        /// </summary>
+        /// <param name="letterOfIntentWithDetails">DTO surat niat dengan detail yang akan dibuat.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron.</returns>
+        public async Task<LetterOfIntentViewDTO> CreateWithDetailsAsync(LetterOfIntentWithDetailsInsertDTO letterOfIntentWithDetails)
+        {
+            // Validasi dasar bisa ditambahkan di sini jika diperlukan
+            
+            var newLetterOfIntent = _mapper.Map<LetterOfIntent>(letterOfIntentWithDetails);
+            
+            // Membuat letter of intent terlebih dahulu
+            await _letterOfIntentDAL.CreateAsync(newLetterOfIntent);
+            
+            // Membuat detail-detail jika ada
+            if (letterOfIntentWithDetails.Details != null && letterOfIntentWithDetails.Details.Any())
+            {
+                var details = letterOfIntentWithDetails.Details.Select(d => _mapper.Map<LetterOfIntentDetail>(d)).ToList();
+                await _letterOfIntentDAL.AddDetailsAsync(newLetterOfIntent.Loiid, details);
+            }
+            
+            // Mengambil kembali letter of intent dengan detail untuk memastikan semua data sudah ter-update
+            var createdLetterOfIntent = await _letterOfIntentDAL.GetByIdWithDetailsAsync(newLetterOfIntent.Loiid);
+            return _mapper.Map<LetterOfIntentViewDTO>(createdLetterOfIntent);
         }
 
         /// <summary>

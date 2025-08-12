@@ -12,13 +12,11 @@ namespace FinalProject.DAL.DAL
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
 
-        public UsmanDAL(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<IdentityUser> signInManager)
+        public UsmanDAL(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
-            _signInManager = signInManager;
         }
 
         public async Task<bool> AddUserToRoleAsync(string email, string roleName)
@@ -126,8 +124,8 @@ namespace FinalProject.DAL.DAL
                     return false; // User not found
                 }
 
-                var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
-                return result.Succeeded;
+                var result = await _userManager.CheckPasswordAsync(user, password);
+                return result;
             }
             catch (Exception)
             {

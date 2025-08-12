@@ -9,6 +9,7 @@ namespace FinalProject.BL.Interfaces
         Task<IEnumerable<LetterOfIntentViewDTO>> GetAllAsync();
         Task<LetterOfIntentViewDTO?> GetByIdAsync(int id);
         Task<LetterOfIntentViewDTO> CreateAsync(LetterOfIntentInsertDTO letterOfIntent);
+        Task<LetterOfIntentViewDTO> CreateWithDetailsAsync(LetterOfIntentWithDetailsInsertDTO letterOfIntentWithDetails);
         Task<LetterOfIntentViewDTO> UpdateAsync(int id, LetterOfIntentUpdateDTO letterOfIntent);
         Task DeleteAsync(int id);
     }

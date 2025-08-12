@@ -27,6 +27,27 @@ namespace FinalProject.DAL.DAL
                 await _context.SaveChangesAsync();
             }
         }
+        
+        // Method untuk mendapatkan semua data dengan detail
+        public async Task<IEnumerable<SalesAgreement>> GetAllWithDetailsAsync()
+        {
+            try
+            {
+                return await _dbSet
+                    .Include(a => a.SalesAgreementDetails)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Gagal mengambil data: {ex.Message}", ex);
+            }
+        }
+        
+        // Override GetAllAsync untuk kembali ke perilaku default (tanpa detail)
+        public new async Task<IEnumerable<SalesAgreement>> GetAllAsync()
+        {
+            return await base.GetAllAsync();
+        }
 
         public async Task RemoveDetailAsync(int agreementId, int detailId)
         {
@@ -95,6 +116,27 @@ namespace FinalProject.DAL.DAL
                 _dbSet.Remove(agreement);
                 await _context.SaveChangesAsync();
             }
+        }
+        
+        // Method untuk mendapatkan data berdasarkan ID dengan detail
+        public async Task<SalesAgreement?> GetByIdWithDetailsAsync(int id)
+        {
+            try
+            {
+                return await _dbSet
+                    .Include(a => a.SalesAgreementDetails)
+                    .FirstOrDefaultAsync(a => a.SalesAgreementId == id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Gagal mengambil data berdasarkan ID: {ex.Message}", ex);
+            }
+        }
+        
+        // Override GetByIdAsync untuk kembali ke perilaku default (tanpa detail)
+        public new async Task<SalesAgreement?> GetByIdAsync(int id)
+        {
+            return await base.GetByIdAsync(id);
         }
     }
 }

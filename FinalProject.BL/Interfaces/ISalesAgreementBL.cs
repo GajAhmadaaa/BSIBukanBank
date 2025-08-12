@@ -9,6 +9,7 @@ namespace FinalProject.BL.Interfaces
         Task<IEnumerable<SalesAgreementViewDTO>> GetAllAsync();
         Task<SalesAgreementViewDTO?> GetByIdAsync(int id);
         Task<SalesAgreementViewDTO> CreateAsync(SalesAgreementInsertDTO salesAgreement);
+        Task<SalesAgreementViewDTO> CreateWithDetailsAsync(SalesAgreementWithDetailsInsertDTO salesAgreementWithDetails);
         Task<SalesAgreementViewDTO> UpdateAsync(int id, SalesAgreementUpdateDTO salesAgreement);
         Task DeleteAsync(int id);
     }

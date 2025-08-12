@@ -32,11 +32,21 @@ namespace FinalProject.BL.Profiles
             CreateMap<LetterOfIntent, LetterOfIntentViewDTO>().ReverseMap();
             CreateMap<LetterOfIntent, LetterOfIntentInsertDTO>().ReverseMap();
             CreateMap<LetterOfIntent, LetterOfIntentUpdateDTO>().ReverseMap();
+            CreateMap<LetterOfIntentWithDetailsInsertDTO, LetterOfIntent>()
+                .ForMember(dest => dest.LetterOfIntentDetails, opt => opt.Ignore());
+            
+            // Mapping untuk LetterOfIntentDetail
+            CreateMap<LetterOfIntentDetailInsertDTO, LetterOfIntentDetail>();
             
             // Mapping untuk SalesAgreement
             CreateMap<SalesAgreement, SalesAgreementViewDTO>().ReverseMap();
             CreateMap<SalesAgreement, SalesAgreementInsertDTO>().ReverseMap();
             CreateMap<SalesAgreement, SalesAgreementUpdateDTO>().ReverseMap();
+            CreateMap<SalesAgreementWithDetailsInsertDTO, SalesAgreement>()
+                .ForMember(dest => dest.SalesAgreementDetails, opt => opt.Ignore());
+            
+            // Mapping untuk SalesAgreementDetail
+            CreateMap<SalesAgreementDetailInsertDTO, SalesAgreementDetail>();
             
             // Mapping untuk SalesPerson
             CreateMap<SalesPerson, SalesPersonViewDTO>().ReverseMap();

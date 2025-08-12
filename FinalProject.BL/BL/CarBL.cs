@@ -4,6 +4,7 @@ using FinalProject.BL.Interfaces;
 using FinalProject.BO.Models;
 using FinalProject.DAL.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace FinalProject.BL.BL
@@ -57,6 +58,16 @@ namespace FinalProject.BL.BL
                 return _mapper.Map<CarViewDTO>(existingCar);
             }
             return null;
+        }
+
+        public async Task<IEnumerable<CarViewDTO>> GetCarsBySearch(string search)
+        {
+            var cars = await _carDAL.GetAllAsync();
+            var filteredCars = cars.Where(c => 
+                c.Model.Contains(search, System.StringComparison.OrdinalIgnoreCase) ||
+                c.CarType.Contains(search, System.StringComparison.OrdinalIgnoreCase) ||
+                c.Color.Contains(search, System.StringComparison.OrdinalIgnoreCase));
+            return _mapper.Map<IEnumerable<CarViewDTO>>(filteredCars);
         }
     }
 }

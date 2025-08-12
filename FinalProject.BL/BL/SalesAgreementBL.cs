@@ -43,6 +43,32 @@ namespace FinalProject.BL.BL
         }
 
         /// <summary>
+        /// Membuat perjanjian penjualan baru beserta detail-detailnya.
+        /// </summary>
+        /// <param name="salesAgreementWithDetails">DTO perjanjian penjualan dengan detail yang akan dibuat.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron.</returns>
+        public async Task<SalesAgreementViewDTO> CreateWithDetailsAsync(SalesAgreementWithDetailsInsertDTO salesAgreementWithDetails)
+        {
+            // Validasi dasar bisa ditambahkan di sini jika diperlukan
+            
+            var newSalesAgreement = _mapper.Map<SalesAgreement>(salesAgreementWithDetails);
+            
+            // Membuat sales agreement terlebih dahulu
+            await _salesAgreementDAL.CreateAsync(newSalesAgreement);
+            
+            // Membuat detail-detail jika ada
+            if (salesAgreementWithDetails.Details != null && salesAgreementWithDetails.Details.Any())
+            {
+                var details = salesAgreementWithDetails.Details.Select(d => _mapper.Map<SalesAgreementDetail>(d)).ToList();
+                await _salesAgreementDAL.AddDetailsAsync(newSalesAgreement.SalesAgreementId, details);
+            }
+            
+            // Mengambil kembali sales agreement dengan detail untuk memastikan semua data sudah ter-update
+            var createdSalesAgreement = await _salesAgreementDAL.GetByIdWithDetailsAsync(newSalesAgreement.SalesAgreementId);
+            return _mapper.Map<SalesAgreementViewDTO>(createdSalesAgreement);
+        }
+
+        /// <summary>
         /// Menghapus perjanjian penjualan berdasarkan ID-nya.
         /// </summary>
         /// <param name="id">ID perjanjian penjualan yang akan dihapus.</param>
