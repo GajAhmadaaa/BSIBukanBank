@@ -1,18 +1,29 @@
+using FinalProject.DAL;
 using FinalProject.MVC.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace FinalProject.MVC.Controllers
 {
     public class AccountController : Controller
     {
-        // Dummy data untuk simulasi database
-        private static List<User> _users = new List<User>
+        private readonly FinalProjectContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
+
+        public AccountController(
+            FinalProjectContext context,
+            UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager)
         {
-            new User { Id = 1, Name = "Admin", Email = "admin@example.com", Password = "Admin123!", PhoneNumber = "08123456789", Address = "Jl. Admin No. 1" }
-        };
+            _context = context;
+            _userManager = userManager;
+            _signInManager = signInManager;
+        }
 
         public IActionResult Login(string? returnUrl = null)
         {
@@ -28,31 +39,35 @@ namespace FinalProject.MVC.Controllers
 
             if (ModelState.IsValid)
             {
-                // Cek kredensial (simulasi database)
-                var user = _users.FirstOrDefault(u => u.Email == model.Email && u.Password == model.Password);
-
-                if (user != null)
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+                
+                if (result.Succeeded)
                 {
-                    // Buat klaim untuk user
-                    var claims = new List<Claim>
+                    // Get user details to add additional claims
+                    var user = await _userManager.FindByEmailAsync(model.Email);
+                    if (user != null)
                     {
-                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                        new Claim(ClaimTypes.Name, user.Name),
-                        new Claim(ClaimTypes.Email, user.Email),
-                        new Claim("PhoneNumber", user.PhoneNumber),
-                        new Claim("Address", user.Address)
-                    };
-
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    var authProperties = new AuthenticationProperties
-                    {
-                        IsPersistent = model.RememberMe
-                    };
-
-                    await HttpContext.SignInAsync(
-                        CookieAuthenticationDefaults.AuthenticationScheme,
-                        new ClaimsPrincipal(claimsIdentity),
-                        authProperties);
+                        // Get customer details if they exist
+                        var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Email == model.Email);
+                        if (customer != null)
+                        {
+                            // Add additional claims
+                            var claims = new List<Claim>
+                            {
+                                new Claim("PhoneNumber", customer.PhoneNumber ?? ""),
+                                new Claim("Address", customer.Address ?? "")
+                            };
+                            
+                            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                            await HttpContext.SignInAsync(
+                                CookieAuthenticationDefaults.AuthenticationScheme,
+                                new ClaimsPrincipal(claimsIdentity),
+                                new AuthenticationProperties
+                                {
+                                    IsPersistent = model.RememberMe
+                                });
+                        }
+                    }
 
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     {
@@ -82,29 +97,41 @@ namespace FinalProject.MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Cek apakah email sudah digunakan
-                if (_users.Any(u => u.Email == model.Email))
+                // Check if email is already used
+                var existingUser = await _userManager.FindByEmailAsync(model.Email);
+                if (existingUser != null)
                 {
                     ModelState.AddModelError("Email", "Email is already taken.");
                     return View(model);
                 }
 
-                // Buat user baru
-                var user = new User
+                // Create Identity user
+                var user = new IdentityUser { UserName = model.Email, Email = model.Email };
+                var result = await _userManager.CreateAsync(user, model.Password);
+
+                if (result.Succeeded)
                 {
-                    Id = _users.Max(u => u.Id) + 1,
-                    Name = model.Name,
-                    Email = model.Email,
-                    Password = model.Password, // Dalam implementasi nyata, ini harus dihash
-                    PhoneNumber = model.PhoneNumber,
-                    Address = model.Address
-                };
+                    // Create customer record
+                    var customer = new FinalProject.BO.Models.Customer
+                    {
+                        Name = model.Name,
+                        Email = model.Email,
+                        PhoneNumber = model.PhoneNumber,
+                        Address = model.Address
+                    };
 
-                _users.Add(user);
+                    _context.Customers.Add(customer);
+                    await _context.SaveChangesAsync();
 
-                // Redirect ke login setelah register berhasil
-                TempData["SuccessMessage"] = "Registration successful. Please log in.";
-                return RedirectToAction("Login");
+                    // Redirect to login after successful registration
+                    TempData["SuccessMessage"] = "Registration successful. Please log in.";
+                    return RedirectToAction("Login");
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
             }
 
             return View(model);
@@ -112,19 +139,8 @@ namespace FinalProject.MVC.Controllers
 
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
-        }
-
-        // Model User untuk simulasi database
-        public class User
-        {
-            public int Id { get; set; }
-            public string Name { get; set; } = string.Empty;
-            public string Email { get; set; } = string.Empty;
-            public string Password { get; set; } = string.Empty;
-            public string PhoneNumber { get; set; } = string.Empty;
-            public string Address { get; set; } = string.Empty;
         }
     }
 }

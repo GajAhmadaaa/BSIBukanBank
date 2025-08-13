@@ -1,0 +1,74 @@
+@{
+    ViewData["Title"] = "Create Order";
+}
+
+<div class="container">
+    <h1 class="mt-4">Create New Order</h1>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-action="Create" method="post">
+                <div class="mb-3">
+                    <label for="carId" class="form-label">Select Car</label>
+                    <select name="carId" id="carId" class="form-select" required>
+                        <option value="">-- Select a Car --</option>
+                        @if (ViewBag.Cars != null)
+                        {
+                            foreach (var car in ViewBag.Cars)
+                            {
+                                <option value="@car.CarId" data-price="@car.Price">
+                                    @car.Model (@car.CarType) - @car.DealerName - @string.Format("{0:C}", car.Price)
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="agreedPrice" class="form-label">Agreed Price</label>
+                    <input type="number" name="agreedPrice" id="agreedPrice" class="form-control" step="0.01" required />
+                    <div class="form-text">Enter the agreed price for the car.</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="note" class="form-label">Note</label>
+                    <textarea name="note" id="note" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Place Order</button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Order Information</h5>
+                </div>
+                <div class="card-body">
+                    <p>Your order will include:</p>
+                    <ul>
+                        <li>Letter of Intent (LOI)</li>
+                        <li>Booking with a fee of Rp 1,000,000</li>
+                        <li>Payment instructions</li>
+                    </ul>
+                    <p class="text-muted">After placing your order, our sales team will contact you to finalize the purchase process.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('carId').addEventListener('change', function() {
+            var selectedOption = this.options[this.selectedIndex];
+            var price = selectedOption.getAttribute('data-price');
+            if (price) {
+                document.getElementById('agreedPrice').value = parseFloat(price).toFixed(2);
+            }
+        });
+    </script>
+}

@@ -66,3 +66,9 @@ body {
 .container {
   flex: 1;
 }
+/* Custom hover untuk tombol login navbar */
+.navbar-nav .nav-link.btn.btn-outline-light:hover {
+  background-color: #ffffff !important;
+  color: #212529 !important;
+  border-color: #ffffff !important;
+}
