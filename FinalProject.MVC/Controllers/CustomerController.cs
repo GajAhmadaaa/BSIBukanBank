@@ -1,26 +1,24 @@
 using FinalProject.BL.Interfaces;
-using FinalProject.BO.Models;
-using FinalProject.DAL;
+using FinalProject.BL.DTO;
 using FinalProject.MVC.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FinalProject.MVC.Controllers
 {
     [Authorize]
     public class CustomerController : Controller
     {
-        private readonly FinalProjectContext _context;
+        private readonly ICustomerBL _customerBL;
 
-        public CustomerController(FinalProjectContext context)
+        public CustomerController(ICustomerBL customerBL)
         {
-            _context = context;
+            _customerBL = customerBL;
         }
 
         public async Task<IActionResult> Index()
         {
-            var customers = await _context.Customers.ToListAsync();
+            var customers = await _customerBL.GetAllCustomers();
             var customerViewModels = customers.Select(c => new CustomerViewModel
             {
                 CustomerId = c.CustomerId,
@@ -35,7 +33,7 @@ namespace FinalProject.MVC.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = await _customerBL.GetCustomerById(id);
             if (customer == null)
             {
                 return NotFound();
@@ -64,7 +62,7 @@ namespace FinalProject.MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                var customer = new Customer
+                var customerInsertDTO = new CustomerInsertDTO
                 {
                     Name = customerViewModel.Name,
                     Email = customerViewModel.Email,
@@ -72,10 +70,9 @@ namespace FinalProject.MVC.Controllers
                     Address = customerViewModel.Address
                 };
 
-                _context.Customers.Add(customer);
-                await _context.SaveChangesAsync();
+                await _customerBL.CreateCustomer(customerInsertDTO);
 
-                TempData[("SuccessMessage")] = "Customer berhasil ditambahkan!";
+                TempData["SuccessMessage"] = "Customer berhasil ditambahkan!";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -84,7 +81,7 @@ namespace FinalProject.MVC.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = await _customerBL.GetCustomerById(id);
             if (customer == null)
             {
                 return NotFound();
@@ -108,34 +105,22 @@ namespace FinalProject.MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                var customer = await _context.Customers.FindAsync(id);
-                if (customer == null)
+                var customerUpdateDTO = new CustomerUpdateDTO
+                {
+                    CustomerId = id,
+                    Name = customerViewModel.Name,
+                    Email = customerViewModel.Email,
+                    PhoneNumber = customerViewModel.PhoneNumber,
+                    Address = customerViewModel.Address
+                };
+
+                var updatedCustomer = await _customerBL.UpdateCustomer(customerUpdateDTO);
+                if (updatedCustomer == null)
                 {
                     return NotFound();
                 }
 
-                customer.Name = customerViewModel.Name;
-                customer.Email = customerViewModel.Email;
-                customer.PhoneNumber = customerViewModel.PhoneNumber;
-                customer.Address = customerViewModel.Address;
-
-                try
-                {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CustomerExists(id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-
-                TempData[("SuccessMessage")] = "Customer berhasil diperbarui!";
+                TempData["SuccessMessage"] = "Customer berhasil diperbarui!";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -144,7 +129,7 @@ namespace FinalProject.MVC.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = await _customerBL.GetCustomerById(id);
             if (customer == null)
             {
                 return NotFound();
@@ -166,20 +151,9 @@ namespace FinalProject.MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer != null)
-            {
-                _context.Customers.Remove(customer);
-            }
-
-            await _context.SaveChangesAsync();
-            TempData[("SuccessMessage")] = "Customer berhasil dihapus!";
+            await _customerBL.DeleteCustomer(id);
+            TempData["SuccessMessage"] = "Customer berhasil dihapus!";
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool CustomerExists(int id)
-        {
-            return _context.Customers.Any(e => e.CustomerId == id);
         }
     }
 }

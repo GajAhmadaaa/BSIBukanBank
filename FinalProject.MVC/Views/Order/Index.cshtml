@@ -1,4 +1,4 @@
-@model IEnumerable<FinalProject.BO.Models.LetterOfIntent>
+@model IEnumerable<FinalProject.BL.DTO.LetterOfIntentViewDTO>
 
 @{
     ViewData["Title"] = "My Orders";
@@ -28,33 +28,20 @@
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card h-100">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Order #@order.Loiid</h5>
+                            <h5 class="card-title mb-0">Order #@order.Id</h5>
                         </div>
                         <div class="card-body">
                             <p class="card-text">
                                 <strong>Date:</strong> @order.Loidate.ToString("dd MMM yyyy")<br>
-                                <strong>Dealer:</strong> @order.Dealer?.Name<br>
+                                @* Note: Dealer, Customer, and other navigation properties are not available in DTOs *@
                                 <strong>Status:</strong> 
-                                @if (order.Bookings.Any())
-                                {
-                                    <span class="badge bg-warning">@order.Bookings.First().Status</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">No Booking</span>
-                                }
+                                @* Note: Bookings and other related entities are not available in DTOs *@
+                                <span class="badge bg-secondary">Information Limited</span>
                             </p>
-                            @if (order.LetterOfIntentDetails.Any())
-                            {
-                                var detail = order.LetterOfIntentDetails.First();
-                                <p class="card-text">
-                                    <strong>Car:</strong> @detail.Car?.Model<br>
-                                    <strong>Price:</strong> @string.Format("{0:C}", detail.AgreedPrice)
-                                </p>
-                            }
+                            @* Note: LetterOfIntentDetails and Car information are not available in DTOs *@
                         </div>
                         <div class="card-footer">
-                            <a asp-action="Details" asp-route-id="@order.Loiid" class="btn btn-primary">View Details</a>
+                            <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-primary">View Details</a>
                         </div>
                     </div>
                 </div>

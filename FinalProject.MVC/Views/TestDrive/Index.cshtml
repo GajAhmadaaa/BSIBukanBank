@@ -1,0 +1,42 @@
+@model IEnumerable<FinalProject.MVC.ViewModels.TestDriveViewModel>
+
+@{
+    ViewData["Title"] = "Test Drive Schedule";
+}
+
+<h2>Test Drive Schedule</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Test Drive ID</th>
+            <th>Date</th>
+            <th>Note</th>
+            <th>Dealer</th>
+            <th>Customer</th>
+            <th>Sales Person</th>
+            <th>Car Model</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.TestDriveId</td>
+                <td>@item.TestDriveDate.ToString("yyyy-MM-dd")</td>
+                <td>@item.Note</td>
+                <td>@item.DealerName</td>
+                <td>@item.CustomerName</td>
+                <td>@item.SalesPersonName</td>
+                <td>@item.CarModel</td>
+                <td>
+                    <a href="@Url.Action("Details", new { id = item.TestDriveId })" class="btn btn-info">Details</a>
+                    <a href="@Url.Action("Edit", new { id = item.TestDriveId })" class="btn btn-warning">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("Create")" class="btn btn-primary">Schedule New Test Drive</a>

@@ -20,7 +20,7 @@ public static class DataAccessLayerServiceExtensions
         //         .GetRequiredService<IConfiguration>()
         //         .GetConnectionString("FinalProjectConnectionString")));
         
-        services.AddIdentityCore<IdentityUser>(options =>
+        services.AddIdentity<IdentityUser, IdentityRole>(options =>
         {
             options.User.RequireUniqueEmail = true;
             options.Password.RequireDigit = false;
@@ -28,8 +28,9 @@ public static class DataAccessLayerServiceExtensions
             options.Password.RequireLowercase = false;
             options.Password.RequireNonAlphanumeric = false;
             options.Password.RequireUppercase = false;
-        }).AddRoles<IdentityRole>()
-          .AddEntityFrameworkStores<FinalProjectContext>();
+        })
+        .AddEntityFrameworkStores<FinalProjectContext>()
+        .AddDefaultTokenProviders();
 
         // Register Data Access Layer services
         services.AddScoped<ICar, CarDAL>();
