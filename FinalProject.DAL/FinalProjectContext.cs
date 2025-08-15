@@ -76,6 +76,9 @@ public partial class FinalProjectContext : IdentityDbContext
 
     public virtual DbSet<WarrantyClaim> WarrantyClaims { get; set; }
 
+    // Tambahkan DbSets untuk entitas baru
+    public virtual DbSet<CustomerNotification> CustomerNotifications { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -435,6 +438,14 @@ public partial class FinalProjectContext : IdentityDbContext
                 .IsUnicode(false);
             entity.Property(e => e.SalesPersonId).HasColumnName("SalesPersonID");
             entity.Property(e => e.TestDriveId).HasColumnName("TestDriveID");
+            // Mapping untuk properti Status baru
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnType("varchar(20)")
+                .HasColumnName("Status");
+            // Jika Anda ingin menambahkan constraint CHECK:
+            // entity.HasCheckConstraint("CK_LetterOfIntent_Status", "[Status] IN ('Draft', 'Submitted', 'PendingStock', 'ReadyForAgreement', 'Converted', 'Cancelled')");
 
             entity.HasOne(d => d.ConsultHistory).WithMany(p => p.LetterOfIntents)
                 .HasForeignKey(d => d.ConsultHistoryId)
@@ -737,6 +748,46 @@ public partial class FinalProjectContext : IdentityDbContext
                 .HasForeignKey(d => d.SalesAgreementDetailId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__WarrantyC__Sales__05D8E0BE");
+        });
+
+        // Konfigurasi untuk CustomerNotification
+        modelBuilder.Entity<CustomerNotification>(entity =>
+        {
+            entity.HasKey(e => e.CustomerNotificationId).HasName("PK__CustomerNotification__0000000000000000"); // Placeholder, akan di-generate oleh migrasi
+
+            entity.ToTable("CustomerNotification");
+
+            entity.Property(e => e.CustomerNotificationId).HasColumnName("CustomerNotificationID");
+            entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
+            entity.Property(e => e.Loiid).HasColumnName("LOIID");
+            entity.Property(e => e.SalesAgreementId).HasColumnName("SalesAgreementID");
+            entity.Property(e => e.NotificationType)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnType("varchar(50)");
+            entity.Property(e => e.Message)
+                .IsRequired()
+                .HasMaxLength(500)
+                .IsUnicode(false)
+                .HasColumnType("varchar(500)");
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime").HasDefaultValueSql("GETDATE()");
+            entity.Property(e => e.ReadDate).HasColumnType("datetime");
+            entity.Property(e => e.IsRead).HasColumnType("bit");
+
+            // Foreign Key Relationships
+            entity.HasOne(d => d.Customer).WithMany(p => p.CustomerNotifications)
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.ClientSetNull) // Sesuaikan jika diperlukan
+                .HasConstraintName("FK_CustomerNotification_Customer");
+
+            entity.HasOne(d => d.LetterOfIntent).WithMany(p => p.CustomerNotifications)
+                .HasForeignKey(d => d.Loiid)
+                .HasConstraintName("FK_CustomerNotification_LetterOfIntent");
+
+            entity.HasOne(d => d.SalesAgreement).WithMany(p => p.CustomerNotifications)
+                .HasForeignKey(d => d.SalesAgreementId)
+                .HasConstraintName("FK_CustomerNotification_SalesAgreement");
         });
 
         OnModelCreatingPartial(modelBuilder);

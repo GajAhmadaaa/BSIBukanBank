@@ -1,0 +1,16 @@
+App Start
+   |
+ [Splash]
+   |
+ [Homepage]
+   |--- [Login] ---- (Customer Login)
+   |--- [Register] - (Customer Register)
+   |--- [Profile]
+   |--- [Notification] - (Customer get notification about LoI and Delivery)
+   |--- [Cart]
+           |
+        [[Pending]] - (Pending LoI waiting for sales acceptance)
+           |
+        [[Unpaid]] - (LoI becomes SalesAgreement)
+           |
+        [[Paid]] - (SalesAgreement delivery status)

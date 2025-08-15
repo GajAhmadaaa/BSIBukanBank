@@ -25,6 +25,10 @@ public partial class LetterOfIntent
 
     public string Note { get; set; }
 
+    // Properti Status untuk melacak alur LOI
+    // Sesuai dengan dokumen skenario: Draft, Submitted, PendingStock, ReadyForAgreement, Converted, Cancelled
+    public string Status { get; set; }
+
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 
     public virtual ConsultHistory ConsultHistory { get; set; }
@@ -42,4 +46,7 @@ public partial class LetterOfIntent
     public virtual SalesPerson SalesPerson { get; set; }
 
     public virtual TestDrive TestDrive { get; set; }
+
+    // Tambahkan collection untuk CustomerNotification
+    public virtual ICollection<CustomerNotification> CustomerNotifications { get; set; } = new List<CustomerNotification>();
 }

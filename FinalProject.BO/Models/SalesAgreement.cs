@@ -40,4 +40,7 @@ public partial class SalesAgreement
     public virtual ICollection<SalesAgreementDetail> SalesAgreementDetails { get; set; } = new List<SalesAgreementDetail>();
 
     public virtual SalesPerson SalesPerson { get; set; }
+
+    // Tambahkan collection untuk CustomerNotification
+    public virtual ICollection<CustomerNotification> CustomerNotifications { get; set; } = new List<CustomerNotification>();
 }

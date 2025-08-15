@@ -538,6 +538,27 @@ EXEC sp_CreatePaymentHistory 1001, NULL, 50000000, '2025-07-28', 'DP';
 EXEC sp_CreateWarrantyClaim 2001, 5001, '2025-07-28', 'Klakson mati', 'Open';
 ```
 
+#### e. `sp_TransferInventoryWithCheck`
+- Digunakan untuk melakukan transfer stok mobil antar dealer dengan pengecekan ketersediaan stok terlebih dahulu.
+- **Parameter:**
+  - `@FromDealerID INT` : ID dealer asal
+  - `@ToDealerID INT` : ID dealer tujuan
+  - `@CarID INT` : ID mobil yang akan ditransfer
+  - `@Quantity INT` : Jumlah mobil yang akan ditransfer
+  - `@MutationDate DATETIME` : Tanggal mutasi
+- **Proses:**
+  1. Memulai transaction.
+  2. Memeriksa kelayakan transfer menggunakan function `fn_CheckTransferFeasibility`.
+  3. Jika tidak layak, batalkan transfer dengan pesan error.
+  4. Jika layak, kurangi stok di dealer asal.
+  5. Tambah stok di dealer tujuan (dengan membuat entry baru jika belum ada).
+  6. Catat transfer di tabel `InventoryTransfer`.
+  7. Commit transaction.
+- **Contoh:**
+```sql
+EXEC sp_TransferInventoryWithCheck 1, 2, 1, 5, '2025-07-28';
+```
+
 ## 8. Functions
 
 ### 1. Modularisasi Perhitungan Harga, Diskon, dan Fee
@@ -584,6 +605,19 @@ Fungsi-fungsi modular berikut digunakan untuk mengambil dan menghitung diskon, f
 - **Contoh penggunaan:**
 ```sql
 SELECT dbo.fn_CalculateTotalPrice(300000000, 15000000); -- hasil: 285000000
+```
+
+#### e. `fn_CheckTransferFeasibility`
+- Fungsi ini digunakan untuk memeriksa apakah transfer stok mobil antar dealer dapat dilakukan berdasarkan ketersediaan stok di dealer asal.
+- **Parameter:**  
+  - `@FromDealerID INT` : ID dealer asal
+  - `@CarID INT` : ID mobil yang akan ditransfer
+  - `@Quantity INT` : Jumlah mobil yang akan ditransfer
+- **Return:**  
+  - `BIT` : 1 jika transfer mungkin dilakukan, 0 jika tidak
+- **Contoh penggunaan:**
+```sql
+SELECT dbo.fn_CheckTransferFeasibility(1, 1, 5); -- hasil: 1 (jika dealer 1 memiliki cukup stok mobil 1)
 ```
 
 ## 9. Views

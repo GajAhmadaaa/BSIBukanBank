@@ -25,7 +25,8 @@ Repositori ini berisi skema database dan query SQL yang telah direfaktor untuk m
 │   ├── sp_CreateCustomerComplaint.sql
 │   ├── sp_CreatePaymentHistory.sql
 │   ├── sp_CreateWarrantyClaim.sql
-│   └── sp_RegisterCustomer.sql
+│   ├── sp_RegisterCustomer.sql
+│   └── sp_TransferInventoryWithCheck.sql
 ├── Trigger/
 │   ├── trg_UpdatePaymentStatus.sql
 │   └── trg_UpdateStockAfterSale.sql
@@ -67,6 +68,7 @@ Objek database seperti stored procedure, function, view, dan trigger dikelompokk
   - [`fn_GetDiscountAmount.sql`](Function/fn_GetDiscountAmount.sql)
   - [`fn_GetFeeAmount.sql`](Function/fn_GetFeeAmount.sql)
   - [`fn_GetFinalPrice.sql`](Function/fn_GetFinalPrice.sql)
+  - [`fn_CheckTransferFeasibility.sql`](Function/fn_CheckTransferFeasibility.sql)
 - **Stored Procedure:**
   - [`sp_ApplyForCredit.sql`](Stored%20Procedure/sp_ApplyForCredit.sql)
   - [`sp_CreateCarDelivery.sql`](Stored%20Procedure/sp_CreateCarDelivery.sql)
@@ -75,6 +77,7 @@ Objek database seperti stored procedure, function, view, dan trigger dikelompokk
   - [`sp_CreatePaymentHistory.sql`](Stored%20Procedure/sp_CreatePaymentHistory.sql)
   - [`sp_CreateWarrantyClaim.sql`](Stored%20Procedure/sp_CreateWarrantyClaim.sql)
   - [`sp_RegisterCustomer.sql`](Stored%20Procedure/sp_RegisterCustomer.sql)
+  - [`sp_TransferInventoryWithCheck.sql`](Stored%20Procedure/sp_TransferInventoryWithCheck.sql)
 - **Trigger:**
   - [`trg_UpdatePaymentStatus.sql`](Trigger/trg_UpdatePaymentStatus.sql)
   - [`trg_UpdateStockAfterSale.sql`](Trigger/trg_UpdateStockAfterSale.sql)

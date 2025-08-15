@@ -30,4 +30,7 @@ public partial class Customer
     public virtual ICollection<TestDrive> TestDrives { get; set; } = new List<TestDrive>();
 
     public virtual ICollection<WarrantyClaim> WarrantyClaims { get; set; } = new List<WarrantyClaim>();
+
+    // Tambahkan collection untuk CustomerNotification
+    public virtual ICollection<CustomerNotification> CustomerNotifications { get; set; } = new List<CustomerNotification>();
 }
