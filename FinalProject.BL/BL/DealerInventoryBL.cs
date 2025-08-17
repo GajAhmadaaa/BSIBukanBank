@@ -84,30 +84,46 @@ namespace FinalProject.BL.BL
         }
 
         /// <summary>
-        /// Memperbarui inventaris dealer yang sudah ada.
-        /// </summary>
-        /// <param name="id">ID inventaris dealer yang akan diperbarui.</param>
-        /// <param name="dealerInventory">DTO inventaris dealer yang diperbarui.</param>
-        /// <returns>Tugas yang mewakili operasi asinkron.</returns>
-        public async Task<DealerInventoryViewDTO> UpdateAsync(int id, DealerInventoryUpdateDTO dealerInventory)
+    /// Memperbarui inventaris dealer yang sudah ada.
+    /// </summary>
+    /// <param name="id">ID inventaris dealer yang akan diperbarui.</param>
+    /// <param name="dealerInventory">DTO inventaris dealer yang diperbarui.</param>
+    /// <returns>Tugas yang mewakili operasi asinkron.</returns>
+    public async Task<DealerInventoryViewDTO> UpdateAsync(int id, DealerInventoryUpdateDTO dealerInventory)
+    {
+        // Validasi dasar
+        if (dealerInventory.Stock < 0)
         {
-            // Validasi dasar
-            if (dealerInventory.Stock < 0)
-            {
-                // Pertimbangkan untuk melempar exception validasi khusus atau menanganinya sesuai dengan strategi penanganan error aplikasi Anda
-                // Untuk saat ini, kita hanya akan kembali tanpa memperbarui
-                // Anda mungkin ingin melempar exception di sini
-                throw new ArgumentException("Stock cannot be negative");
-            }
+            // Pertimbangkan untuk melempar exception validasi khusus atau menanganinya sesuai dengan strategi penanganan error aplikasi Anda
+            // Untuk saat ini, kita hanya akan kembali tanpa memperbarui
+            // Anda mungkin ingin melempar exception di sini
+            throw new ArgumentException("Stock cannot be negative");
+        }
 
-            var existingDealerInventory = await _dealerInventoryDAL.GetByIdAsync(id);
-            if (existingDealerInventory != null)
-            {
-                _mapper.Map(dealerInventory, existingDealerInventory);
-                await _dealerInventoryDAL.UpdateAsync(existingDealerInventory);
-                return _mapper.Map<DealerInventoryViewDTO>(existingDealerInventory);
-            }
+        var existingDealerInventory = await _dealerInventoryDAL.GetByIdAsync(id);
+        if (existingDealerInventory != null)
+        {
+            _mapper.Map(dealerInventory, existingDealerInventory);
+            await _dealerInventoryDAL.UpdateAsync(existingDealerInventory);
+            return _mapper.Map<DealerInventoryViewDTO>(existingDealerInventory);
+        }
+        return null;
+    }
+    
+    /// <summary>
+    /// Mendapatkan inventaris dealer berdasarkan dealer dan mobil.
+    /// </summary>
+    /// <param name="dealerId">ID dealer.</param>
+    /// <param name="carId">ID mobil.</param>
+    /// <returns>Tugas yang mewakili operasi asinkron, dengan DTO inventaris dealer, atau null jika tidak ditemukan.</returns>
+    public async Task<DealerInventoryViewDTO?> GetByDealerAndCarAsync(int dealerId, int carId)
+    {
+        var dealerInventory = await _dealerInventoryDAL.GetInventoryByDealerAndCarAsync(dealerId, carId);
+        if (dealerInventory == null)
+        {
             return null;
         }
+        return _mapper.Map<DealerInventoryViewDTO>(dealerInventory);
+    }
     }
 }

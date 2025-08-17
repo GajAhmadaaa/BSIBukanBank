@@ -13,7 +13,7 @@ public partial class LetterOfIntent
 
     public int CustomerId { get; set; }
 
-    public int SalesPersonId { get; set; }
+    public int? SalesPersonId { get; set; }
 
     public int? ConsultHistoryId { get; set; }
 

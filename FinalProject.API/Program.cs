@@ -7,6 +7,22 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Konfigurasi CORS agar Flutter Web bisa akses API
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFlutter",
+        policy =>
+        {
+            policy
+            .SetIsOriginAllowed(origin =>
+                origin.StartsWith("http://localhost:") ||
+                origin.StartsWith("http://192.168.1.") // ganti dengan IP lokal PC Anda jika berbeda
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        });
+});
+
 // Add services to the container.
 builder.Services.AddBusinessLogicLayer(builder.Configuration);
 
@@ -61,6 +77,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Aktifkan CORS sebelum authentication/authorization
+app.UseCors("AllowFlutter");
 
 app.UseAuthentication();
 app.UseAuthorization();

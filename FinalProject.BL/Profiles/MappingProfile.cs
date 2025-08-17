@@ -18,6 +18,11 @@ namespace FinalProject.BL.Profiles
             CreateMap<Customer, CustomerInsertDTO>().ReverseMap();
             CreateMap<Customer, CustomerUpdateDTO>().ReverseMap();
             
+            // Mapping untuk CustomerNotification
+            CreateMap<CustomerNotification, CustomerNotificationViewDTO>().ReverseMap();
+            CreateMap<CustomerNotification, CustomerNotificationInsertDTO>().ReverseMap();
+            CreateMap<CustomerNotification, CustomerNotificationUpdateDTO>().ReverseMap();
+            
             // Mapping untuk Dealer
             CreateMap<Dealer, DealerViewDTO>().ReverseMap();
             CreateMap<Dealer, DealerInsertDTO>().ReverseMap();
@@ -36,7 +41,8 @@ namespace FinalProject.BL.Profiles
                 .ForMember(dest => dest.LetterOfIntentDetails, opt => opt.Ignore());
             
             // Mapping untuk LetterOfIntentDetail
-            CreateMap<LetterOfIntentDetailInsertDTO, LetterOfIntentDetail>();
+            CreateMap<LetterOfIntentDetailInsertDTO, LetterOfIntentDetail>()
+                .ForMember(dest => dest.AgreedPrice, opt => opt.MapFrom(src => src.Price));
             
             // Mapping untuk SalesAgreement
             CreateMap<SalesAgreement, SalesAgreementViewDTO>().ReverseMap();

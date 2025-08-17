@@ -11,5 +11,8 @@ namespace FinalProject.BL.Interfaces
         Task<DealerInventoryViewDTO> CreateAsync(DealerInventoryInsertDTO dealerInventory);
         Task<DealerInventoryViewDTO> UpdateAsync(int id, DealerInventoryUpdateDTO dealerInventory);
         Task DeleteAsync(int id);
+        
+        // Method tambahan untuk mendapatkan harga dealer
+        Task<DealerInventoryViewDTO?> GetByDealerAndCarAsync(int dealerId, int carId);
     }
 }

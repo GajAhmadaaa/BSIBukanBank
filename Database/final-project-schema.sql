@@ -87,6 +87,7 @@ CREATE TABLE LetterOfIntent (
     LOIDate DATETIME NOT NULL,
     PaymentMethod VARCHAR(20),
     Note VARCHAR(200),
+    Status VARCHAR(20), -- Kolom baru untuk status LOI
     FOREIGN KEY (DealerID) REFERENCES Dealer(DealerID),
     FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
     FOREIGN KEY (SalesPersonID) REFERENCES SalesPerson(SalesPersonID),
@@ -297,6 +298,22 @@ CREATE TABLE CustomerFeedback (
     Rating INT,
     Comment VARCHAR(200),
     FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+    FOREIGN KEY (SalesAgreementID) REFERENCES SalesAgreement(SalesAgreementID)
+);
+
+-- 26. CustomerNotification (Tabel baru)
+CREATE TABLE CustomerNotification (
+    CustomerNotificationID INT IDENTITY(1,1) PRIMARY KEY,
+    CustomerID INT NOT NULL,
+    LOIID INT NULL,
+    SalesAgreementID INT NULL,
+    NotificationType VARCHAR(50) NOT NULL,
+    Message VARCHAR(500) NOT NULL,
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+    ReadDate DATETIME NULL,
+    IsRead BIT NOT NULL DEFAULT 0,
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+    FOREIGN KEY (LOIID) REFERENCES LetterOfIntent(LOIID),
     FOREIGN KEY (SalesAgreementID) REFERENCES SalesAgreement(SalesAgreementID)
 );
 GO

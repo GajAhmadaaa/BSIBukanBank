@@ -759,7 +759,7 @@ public partial class FinalProjectContext : IdentityDbContext
 
             entity.Property(e => e.CustomerNotificationId).HasColumnName("CustomerNotificationID");
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
-            entity.Property(e => e.Loiid).HasColumnName("LOIID");
+            entity.Property(e => e.Loid).HasColumnName("LOIID");
             entity.Property(e => e.SalesAgreementId).HasColumnName("SalesAgreementID");
             entity.Property(e => e.NotificationType)
                 .IsRequired()
@@ -782,7 +782,7 @@ public partial class FinalProjectContext : IdentityDbContext
                 .HasConstraintName("FK_CustomerNotification_Customer");
 
             entity.HasOne(d => d.LetterOfIntent).WithMany(p => p.CustomerNotifications)
-                .HasForeignKey(d => d.Loiid)
+                .HasForeignKey(d => d.Loid)
                 .HasConstraintName("FK_CustomerNotification_LetterOfIntent");
 
             entity.HasOne(d => d.SalesAgreement).WithMany(p => p.CustomerNotifications)

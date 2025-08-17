@@ -53,6 +53,7 @@ namespace FinalProject.BL.Extensions
             services.AddScoped<ICarBL, CarBL>();
             services.AddScoped<ICustomerBL, CustomerBL>();
             services.AddScoped<IDealerBL, DealerBL>();
+            services.AddScoped<ICustomerNotificationBL, CustomerNotificationBL>();
             services.AddScoped<IUsmanBL, UsmanBL>();
             
             return services;

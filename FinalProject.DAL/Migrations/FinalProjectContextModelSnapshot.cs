@@ -393,6 +393,62 @@ namespace FinalProject.DAL.Migrations
                     b.ToTable("CustomerFeedback", (string)null);
                 });
 
+            modelBuilder.Entity("FinalProject.BO.Models.CustomerNotification", b =>
+                {
+                    b.Property<int>("CustomerNotificationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("CustomerNotificationID");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerNotificationId"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int")
+                        .HasColumnName("CustomerID");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("Loid")
+                        .HasColumnType("int")
+                        .HasColumnName("LOIID");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("NotificationType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime?>("ReadDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("SalesAgreementId")
+                        .HasColumnType("int")
+                        .HasColumnName("SalesAgreementID");
+
+                    b.HasKey("CustomerNotificationId")
+                        .HasName("PK__CustomerNotification__0000000000000000");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("Loid");
+
+                    b.HasIndex("SalesAgreementId");
+
+                    b.ToTable("CustomerNotification", (string)null);
+                });
+
             modelBuilder.Entity("FinalProject.BO.Models.Dealer", b =>
                 {
                     b.Property<int>("DealerId")
@@ -575,9 +631,15 @@ namespace FinalProject.DAL.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(20)");
 
-                    b.Property<int>("SalesPersonId")
+                    b.Property<int?>("SalesPersonId")
                         .HasColumnType("int")
                         .HasColumnName("SalesPersonID");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("Status");
 
                     b.Property<int?>("TestDriveId")
                         .HasColumnType("int")
@@ -1341,6 +1403,31 @@ namespace FinalProject.DAL.Migrations
                     b.Navigation("SalesAgreement");
                 });
 
+            modelBuilder.Entity("FinalProject.BO.Models.CustomerNotification", b =>
+                {
+                    b.HasOne("FinalProject.BO.Models.Customer", "Customer")
+                        .WithMany("CustomerNotifications")
+                        .HasForeignKey("CustomerId")
+                        .IsRequired()
+                        .HasConstraintName("FK_CustomerNotification_Customer");
+
+                    b.HasOne("FinalProject.BO.Models.LetterOfIntent", "LetterOfIntent")
+                        .WithMany("CustomerNotifications")
+                        .HasForeignKey("Loid")
+                        .HasConstraintName("FK_CustomerNotification_LetterOfIntent");
+
+                    b.HasOne("FinalProject.BO.Models.SalesAgreement", "SalesAgreement")
+                        .WithMany("CustomerNotifications")
+                        .HasForeignKey("SalesAgreementId")
+                        .HasConstraintName("FK_CustomerNotification_SalesAgreement");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("LetterOfIntent");
+
+                    b.Navigation("SalesAgreement");
+                });
+
             modelBuilder.Entity("FinalProject.BO.Models.DealerInventory", b =>
                 {
                     b.HasOne("FinalProject.BO.Models.Car", "Car")
@@ -1409,7 +1496,6 @@ namespace FinalProject.DAL.Migrations
                     b.HasOne("FinalProject.BO.Models.SalesPerson", "SalesPerson")
                         .WithMany("LetterOfIntents")
                         .HasForeignKey("SalesPersonId")
-                        .IsRequired()
                         .HasConstraintName("FK__LetterOfI__Sales__5070F446");
 
                     b.HasOne("FinalProject.BO.Models.TestDrive", "TestDrive")
@@ -1724,6 +1810,8 @@ namespace FinalProject.DAL.Migrations
 
                     b.Navigation("CustomerFeedbacks");
 
+                    b.Navigation("CustomerNotifications");
+
                     b.Navigation("LetterOfIntents");
 
                     b.Navigation("SalesAgreements");
@@ -1763,6 +1851,8 @@ namespace FinalProject.DAL.Migrations
 
                     b.Navigation("CreditApplications");
 
+                    b.Navigation("CustomerNotifications");
+
                     b.Navigation("LetterOfIntentDetails");
 
                     b.Navigation("SalesAgreements");
@@ -1780,6 +1870,8 @@ namespace FinalProject.DAL.Migrations
                     b.Navigation("CustomerComplaints");
 
                     b.Navigation("CustomerFeedbacks");
+
+                    b.Navigation("CustomerNotifications");
 
                     b.Navigation("PaymentHistories");
 

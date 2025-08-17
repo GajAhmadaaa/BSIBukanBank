@@ -4,7 +4,7 @@
 
 Dokumentasi ini memetakan proses bisnis penjualan mobil di AutoCar Dealership ke dalam entitas dan tabel database, sebagai dasar desain sistem informasi yang mendukung berbagai dealer AutoCar.
 
-## 2. Pemetaan Proses Bisnis ke Entitas/Tabel
+## 2. Ringkasan Pemetaan Proses Bisnis ke Entitas/Tabel
 
 | Proses Bisnis                | Entitas/Tabel Utama         | Makna/Deskripsi Singkat                                                                 |
 |------------------------------|-----------------------------|----------------------------------------------------------------------------------------|
@@ -16,6 +16,7 @@ Dokumentasi ini memetakan proses bisnis penjualan mobil di AutoCar Dealership ke
 | Serah Terima Mobil           | CarDelivery, PreDeliveryInspection, SalesAgreement, SalesAgreementDetail, CarDeliverySchedule | Proses PDI, serah terima mobil, penjadwalan pengiriman, transaksi, dan detail mobil    |
 | Pasca-Penjualan              | ServiceHistory, CustomerComplaint, WarrantyClaim, CustomerFeedback, SalesAgreement | Layanan follow-up servis pertama, penanganan keluhan, klaim garansi, feedback pelanggan, dan transaksi |
 | Manajemen Stok & Mutasi      | DealerInventory, InventoryTransfer, Dealer, Car | Pengelolaan stok mobil dan mutasi antar dealer                                          |
+| Notifikasi Pelanggan         | CustomerNotification        | Notifikasi yang dikirimkan kepada pelanggan terkait transaksi atau status tertentu    |
 
 ## 3. Makna Setiap Entitas/Tabel
 
@@ -46,6 +47,7 @@ Dokumentasi ini memetakan proses bisnis penjualan mobil di AutoCar Dealership ke
 | 23 | DealerInventory        | Data stok mobil di setiap dealer, termasuk harga jual, persentase diskon dan fee default per dealer-mobil. Kolom DiscountPercent dan FeePercent bersifat NOT NULL dengan nilai default 0 sesuai implementasi. Kombinasi (DealerID, CarID) bersifat unik (UNIQUE constraint) untuk mencegah duplikasi entri stok per dealer-mobil. |
 | 24  | InventoryTransfer      | Catatan mutasi (perpindahan) stok antar dealer.                                 |
 | 25  | CustomerFeedback       | Feedback atau survey kepuasan pelanggan setelah transaksi.                      |
+| 26  | CustomerNotification   | Notifikasi yang dikirimkan kepada pelanggan terkait transaksi atau status tertentu. |
 
 ## 4. Relasi Antar Entitas/Tabel
 
@@ -68,9 +70,12 @@ Dokumentasi ini memetakan proses bisnis penjualan mobil di AutoCar Dealership ke
 | Customer terkait              | CustomerComplaint    | Customer             | Satu customer bisa punya banyak keluhan                                              |
 | Customer terkait              | WarrantyClaim        | Customer             | Satu customer bisa punya banyak klaim garansi                                        |
 | Customer terkait              | CustomerFeedback     | Customer             | Satu customer bisa punya banyak feedback                                             |
+| Customer terkait              | CustomerNotification | Customer             | Satu customer bisa menerima banyak notifikasi                                        |
 | Car terkait                   | DealerInventory      | Car                  | Satu mobil bisa ada di banyak stok dealer                                            |
 | InventoryTransfer terkait     | Dealer, DealerInventory| InventoryTransfer    | Mutasi stok antar dealer dan inventory                                               |
 | SalesAgreementDetail terkait  | LetterOfIntentDetail | SalesAgreementDetail | Satu detail transaksi bisa terkait dengan satu detail LOI                            |
+| LetterOfIntent terkait        | CustomerNotification | LetterOfIntent       | Satu LOI bisa terkait dengan banyak notifikasi                                       |
+| SalesAgreement terkait        | CustomerNotification | SalesAgreement       | Satu transaksi bisa terkait dengan banyak notifikasi                                 |
 
 ## 5. Diagram Relasi (ERD) - Ringkas
 
@@ -92,6 +97,7 @@ erDiagram
     Customer ||--o{ CustomerComplaint : "mengajukan"
     Customer ||--o{ WarrantyClaim : "mengklaim"
     Customer ||--o{ CustomerFeedback : "memberi"
+    Customer ||--o{ CustomerNotification : "menerima"
 
     SalesPerson ||--o{ ConsultHistory : "melayani"
     SalesPerson ||--o{ TestDrive : "mendampingi"
@@ -114,6 +120,7 @@ erDiagram
     LetterOfIntent ||--o{ Booking : "terkait"
     LetterOfIntent ||--o{ CreditApplication : "membutuhkan"
     LetterOfIntent ||--o{ SalesAgreement : "diformalkan"
+    LetterOfIntent ||--o{ CustomerNotification : "terkait"
 
     LeasingCompany ||--o{ CreditApplication : "memproses"
 
@@ -128,6 +135,7 @@ erDiagram
     SalesAgreement ||--o{ CustomerComplaint : "terkait"
     SalesAgreementDetail ||--o{ WarrantyClaim : "terkait"
     SalesAgreement ||--o{ CustomerFeedback : "subjek dari"
+    SalesAgreement ||--o{ CustomerNotification : "terkait"
 
     LetterOfIntentDetail o|--|| SalesAgreementDetail : "dirinci dalam"
 
@@ -149,6 +157,7 @@ erDiagram
 | LOIDate          | DATETIME       | Tanggal LOI dibuat (Wajib diisi)         |
 | PaymentMethod    | VARCHAR(20)    | Metode pembayaran yang disepakati       |
 | Note             | VARCHAR(200)   | Catatan umum untuk LOI                   |
+| Status           | VARCHAR(20)    | Status LOI (Draft, Submitted, PendingStock, ReadyForAgreement, Converted, Cancelled) |
 
 ### 2. Tabel: LetterOfIntentDetail
 | Nama Kolom      | Tipe Data      | Keterangan                               |
@@ -385,6 +394,19 @@ erDiagram
 | Rating             | INT            | Peringkat kepuasan (1-5)                 |
 | Comment            | VARCHAR(200)   | Komentar dari pelanggan                  |
 
+### 26. Tabel: CustomerNotification
+| Nama Kolom           | Tipe Data      | Keterangan                               |
+|----------------------|----------------|------------------------------------------|
+| CustomerNotificationID | INT, PK      | ID unik untuk setiap notifikasi          |
+| CustomerID           | INT, FK        | ID pelanggan yang menerima notifikasi (Wajib diisi) |
+| LOIID                | INT, FK        | ID LOI terkait (opsional)                |
+| SalesAgreementID     | INT, FK        | ID transaksi terkait (opsional)          |
+| NotificationType     | VARCHAR(50)    | Jenis notifikasi (Wajib diisi)           |
+| Message              | VARCHAR(500)   | Isi pesan notifikasi (Wajib diisi)       |
+| CreatedDate          | DATETIME       | Tanggal notifikasi dibuat (Wajib diisi)  |
+| ReadDate             | DATETIME       | Tanggal notifikasi dibaca (opsional)     |
+| IsRead               | BIT            | Status pembacaan notifikasi (Wajib diisi) |
+
 ## 7. Stored Procedures
 
 ### 1. Pendaftaran Pelanggan Baru
@@ -559,6 +581,47 @@ EXEC sp_CreateWarrantyClaim 2001, 5001, '2025-07-28', 'Klakson mati', 'Open';
 EXEC sp_TransferInventoryWithCheck 1, 2, 1, 5, '2025-07-28';
 ```
 
+#### f. `sp_CreateCustomerNotification`
+- Digunakan untuk membuat notifikasi baru untuk pelanggan.
+- **Parameter:**
+  - `@CustomerID INT` : ID pelanggan yang akan menerima notifikasi
+  - `@LOIID INT` (opsional) : ID LOI terkait
+  - `@SalesAgreementID INT` (opsional) : ID transaksi terkait
+  - `@NotificationType VARCHAR(50)` : Jenis notifikasi
+  - `@Message VARCHAR(500)` : Isi pesan notifikasi
+- **Proses:**
+  1. Validasi CustomerID, LOIID (jika diisi), dan SalesAgreementID (jika diisi).
+  2. Validasi bahwa NotificationType dan Message tidak kosong.
+  3. Insert data ke tabel CustomerNotification dengan CreatedDate otomatis.
+- **Contoh:**
+```sql
+EXEC sp_CreateCustomerNotification 2001, 1001, NULL, 'Informasi', 'Pembayaran DP telah diterima';
+```
+
+#### g. `sp_MarkCustomerNotificationAsRead`
+- Digunakan untuk menandai notifikasi pelanggan sebagai sudah dibaca.
+- **Parameter:**
+  - `@CustomerNotificationID INT` : ID notifikasi yang akan ditandai
+- **Proses:**
+  1. Validasi CustomerNotificationID.
+  2. Update IsRead menjadi 1 dan ReadDate menjadi waktu saat ini.
+- **Contoh:**
+```sql
+EXEC sp_MarkCustomerNotificationAsRead 3001;
+```
+
+#### h. `sp_MarkAllCustomerNotificationsAsRead`
+- Digunakan untuk menandai semua notifikasi pelanggan sebagai sudah dibaca.
+- **Parameter:**
+  - `@CustomerID INT` : ID pelanggan yang notifikasinya akan ditandai
+- **Proses:**
+  1. Validasi CustomerID.
+  2. Update semua notifikasi pelanggan yang belum dibaca menjadi sudah dibaca.
+- **Contoh:**
+```sql
+EXEC sp_MarkAllCustomerNotificationsAsRead 2001;
+```
+
 ## 8. Functions
 
 ### 1. Modularisasi Perhitungan Harga, Diskon, dan Fee
@@ -677,6 +740,15 @@ Views menyediakan representasi data yang telah diformat dan disederhanakan untuk
 -   **Contoh Penggunaan:**
     ```sql
     SELECT * FROM vw_WarrantyClaimStatus WHERE ClaimStatus = 'Open';
+    ```
+
+### g. `vw_CustomerNotifications`
+-   **Tujuan:** Menyediakan ringkasan dari semua notifikasi yang dikirimkan kepada pelanggan.
+-   **Kolom Utama:** `CustomerNotificationID`, `CustomerID`, `CustomerName`, `LOIID`, `SalesAgreementID`, `NotificationType`, `Message`, `CreatedDate`, `ReadDate`, `IsRead`, `ReadStatus`.
+-   **Penggunaan:** Untuk tim customer service atau sistem untuk melihat dan mengelola notifikasi pelanggan.
+-   **Contoh Penggunaan:**
+    ```sql
+    SELECT * FROM vw_CustomerNotifications WHERE IsRead = 0;
     ```
 
 ## 10. Triggers

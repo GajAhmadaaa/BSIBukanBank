@@ -43,29 +43,33 @@ namespace FinalProject.MVC.Controllers
                 
                 if (result.Succeeded)
                 {
-                    // Get user details to add additional claims
+                    // Get user details to check role
                     var user = await _userManager.FindByEmailAsync(model.Email);
                     if (user != null)
                     {
-                        // Get customer details if they exist
+                        // Check if user has customer role
+                        var isCustomer = await _userManager.IsInRoleAsync(user, "customer");
+                        if (!isCustomer)
+                        {
+                            await _signInManager.SignOutAsync();
+                            ModelState.AddModelError(string.Empty, "Access denied. This application is for customers only.");
+                            return View(model);
+                        }
+
+                        // Get customer details to add custom claim
                         var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Email == model.Email);
                         if (customer != null)
                         {
-                            // Add additional claims
-                            var claims = new List<Claim>
+                            // Add custom claim for CustomerId
+                            var existingClaim = (await _userManager.GetClaimsAsync(user)).FirstOrDefault(c => c.Type == "CustomerId");
+                            if (existingClaim != null)
                             {
-                                new Claim("PhoneNumber", customer.PhoneNumber ?? ""),
-                                new Claim("Address", customer.Address ?? "")
-                            };
+                                await _userManager.RemoveClaimAsync(user, existingClaim);
+                            }
+                            await _userManager.AddClaimAsync(user, new Claim("CustomerId", customer.CustomerId.ToString()));
                             
-                            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                            await HttpContext.SignInAsync(
-                                CookieAuthenticationDefaults.AuthenticationScheme,
-                                new ClaimsPrincipal(claimsIdentity),
-                                new AuthenticationProperties
-                                {
-                                    IsPersistent = model.RememberMe
-                                });
+                            // Refresh the sign-in cookie to include the new claim
+                            await _signInManager.RefreshSignInAsync(user);
                         }
                     }
 
@@ -97,6 +101,17 @@ namespace FinalProject.MVC.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Validasi tambahan
+                if (string.IsNullOrWhiteSpace(model.Name) || 
+                    string.IsNullOrWhiteSpace(model.Email) || 
+                    string.IsNullOrWhiteSpace(model.Password) ||
+                    string.IsNullOrWhiteSpace(model.PhoneNumber) ||
+                    string.IsNullOrWhiteSpace(model.Address))
+                {
+                    ModelState.AddModelError(string.Empty, "All fields are required.");
+                    return View(model);
+                }
+
                 // Check if email is already used
                 var existingUser = await _userManager.FindByEmailAsync(model.Email);
                 if (existingUser != null)
@@ -111,21 +126,42 @@ namespace FinalProject.MVC.Controllers
 
                 if (result.Succeeded)
                 {
-                    // Create customer record
-                    var customer = new FinalProject.BO.Models.Customer
+                    try
                     {
-                        Name = model.Name,
-                        Email = model.Email,
-                        PhoneNumber = model.PhoneNumber,
-                        Address = model.Address
-                    };
+                        // Assign customer role
+                        var roleResult = await _userManager.AddToRoleAsync(user, "customer");
+                        if (!roleResult.Succeeded)
+                        {
+                            // Log error jika perlu, tapi tetap lanjutkan proses
+                            foreach (var error in roleResult.Errors)
+                            {
+                                ModelState.AddModelError(string.Empty, $"Error assigning role: {error.Description}");
+                            }
+                        }
 
-                    _context.Customers.Add(customer);
-                    await _context.SaveChangesAsync();
+                        // Create customer record
+                        var customer = new FinalProject.BO.Models.Customer
+                        {
+                            Name = model.Name,
+                            Email = model.Email,
+                            PhoneNumber = model.PhoneNumber,
+                            Address = model.Address
+                        };
 
-                    // Redirect to login after successful registration
-                    TempData["SuccessMessage"] = "Registration successful. Please log in.";
-                    return RedirectToAction("Login");
+                        _context.Customers.Add(customer);
+                        await _context.SaveChangesAsync();
+
+                        // Redirect to login after successful registration
+                        TempData["SuccessMessage"] = "Registration successful. Please log in.";
+                        return RedirectToAction("Login");
+                    }
+                    catch (Exception ex)
+                    {
+                        // Jika ada error saat membuat record customer, hapus user yang sudah dibuat
+                        await _userManager.DeleteAsync(user);
+                        ModelState.AddModelError(string.Empty, $"Registration failed: {ex.Message}");
+                        return View(model);
+                    }
                 }
 
                 foreach (var error in result.Errors)

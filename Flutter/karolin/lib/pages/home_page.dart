@@ -1,11 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:karolin/services/auth_service.dart';
 import 'package:karolin/widgets/service_card.dart';
 import 'package:karolin/widgets/car_card.dart';
 import 'package:karolin/widgets/testimonial_card.dart';
 
-class HomePage extends StatelessWidget {
+import 'package:karolin/widgets/main_drawer.dart';
+
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final AuthService _authService = AuthService();
+  bool _isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final token = await _authService.getToken();
+    if (mounted) {
+      setState(() {
+        _isLoggedIn = token != null;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,70 +61,16 @@ class HomePage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () {
-              context.push('/login');
+              if (_isLoggedIn) {
+                context.push('/profile');
+              } else {
+                context.push('/login');
+              }
             },
           ),
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'Karolin Dealer',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Home'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            ),
-            ListTile(
-              leading: const Icon(Icons.phone),
-              title: const Text('Contact'),
-              onTap: () {
-                // Navigasi ke halaman contact
-              },
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            ),
-            ListTile(
-              leading: const Icon(Icons.people),
-              title: const Text('Customer'),
-              onTap: () {
-                // Navigasi ke halaman customer
-              },
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            ),
-            ListTile(
-              leading: const Icon(Icons.shopping_cart),
-              title: const Text('Orders'),
-              onTap: () {
-                // Navigasi ke halaman orders
-              },
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            ),
-            ListTile(
-              leading: const Icon(Icons.speed),
-              title: const Text('Test Drive'),
-              onTap: () {
-                // Navigasi ke halaman test drive
-              },
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            ),
-          ],
-        ),
-      ),
+      drawer: const MainDrawer(),
       body: SingleChildScrollView(
         child: Column(
           children: [

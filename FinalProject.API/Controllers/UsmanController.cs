@@ -42,31 +42,7 @@ namespace FinalProject.API.Controllers
             }
         }
 
-        //registration
-        [HttpPost("register")]
-        public async Task<IActionResult> RegisterAsync(RegistrationDTO registrationDTO)
-        {
-            if (registrationDTO == null)
-            {
-                return BadRequest("Registration data cannot be null");
-            }
-            try
-            {
-                var result = await _usmanBL.RegisterAsync(registrationDTO);
-                if (result)
-                {
-                    return Ok("Registration successful");
-                }
-                else
-                {
-                    return BadRequest("Registration failed");
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
-            }
-        }
+        
 
         //create role
         [HttpPost("create-role")]

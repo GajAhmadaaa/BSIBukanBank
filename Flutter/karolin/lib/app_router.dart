@@ -1,7 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'pages/splash_page.dart';
-import 'pages/homepage.dart';
+import 'pages/home_page.dart';
 import 'pages/auth/login_page.dart';
 import 'pages/auth/register_page.dart';
 import 'pages/profile_page.dart';
@@ -10,6 +10,7 @@ import 'pages/cart/cart_page.dart';
 import 'pages/cart/pending_page.dart';
 import 'pages/cart/unpaid_page.dart';
 import 'pages/cart/paid_page.dart';
+import 'pages/order_status_page.dart';
 
 final GoRouter appRouter = GoRouter(
   routes: <RouteBase>[
@@ -49,9 +50,16 @@ final GoRouter appRouter = GoRouter(
         return const NotificationPage();
       },
     ),
+    GoRoute(
+      path: '/order/:id',
+      builder: (BuildContext context, GoRouterState state) {
+        final id = int.parse(state.pathParameters['id']!);
+        return OrderStatusPage(orderId: id);
+      },
+    ),
     ShellRoute(
       builder: (BuildContext context, GoRouterState state, Widget child) {
-        return CartPage(child: child);
+        return CartPage(child: child, state: state);
       },
       routes: <RouteBase>[
         GoRoute(

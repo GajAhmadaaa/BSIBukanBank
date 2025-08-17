@@ -51,6 +51,7 @@ Repositori ini berisi skema database dan query SQL yang telah direfaktor untuk m
 | Serah Terima Mobil           | CarDelivery, PreDeliveryInspection, SalesAgreement, SalesAgreementDetail, CarDeliverySchedule | Proses PDI, serah terima mobil, penjadwalan pengiriman, transaksi, dan detail mobil    |
 | Pasca-Penjualan              | ServiceHistory, CustomerComplaint, WarrantyClaim, CustomerFeedback, SalesAgreement | Layanan follow-up servis pertama, penanganan keluhan, klaim garansi, feedback pelanggan, dan transaksi |
 | Manajemen Stok & Mutasi      | DealerInventory, InventoryTransfer, Dealer, Car | Pengelolaan stok mobil dan mutasi antar dealer                                          |
+| Notifikasi Pelanggan         | CustomerNotification        | Notifikasi yang dikirimkan kepada pelanggan terkait transaksi atau status tertentu    |
 
 ## 3. Deskripsi File Utama
 
@@ -125,6 +126,7 @@ Dokumentasi ini berisi penjelasan teknis lengkap: detail tabel, kolom, relasi, E
 | 23  | DealerInventory        | Data stok mobil di setiap dealer, termasuk harga, diskon, dan fee per dealer-mobil. Kombinasi (DealerID, CarID) bersifat unik untuk mencegah duplikasi entri stok per dealer-mobil. |
 | 24  | InventoryTransfer      | Catatan mutasi (perpindahan) stok antar dealer.                                 |
 | 25  | CustomerFeedback       | Feedback atau survey kepuasan pelanggan setelah transaksi.                      |
+| 26  | CustomerNotification   | Notifikasi yang dikirimkan kepada pelanggan terkait transaksi atau status tertentu. |
 
 ### Diagram Relasi (ERD)
 
@@ -146,6 +148,7 @@ erDiagram
     Customer ||--o{ CustomerComplaint : "mengajukan"
     Customer ||--o{ WarrantyClaim : "mengklaim"
     Customer ||--o{ CustomerFeedback : "memberi"
+    Customer ||--o{ CustomerNotification : "menerima"
 
     SalesPerson ||--o{ ConsultHistory : "melayani"
     SalesPerson ||--o{ TestDrive : "mendampingi"
@@ -168,6 +171,7 @@ erDiagram
     LetterOfIntent ||--o{ Booking : "terkait"
     LetterOfIntent ||--o{ CreditApplication : "membutuhkan"
     LetterOfIntent ||--o{ SalesAgreement : "diformalkan"
+    LetterOfIntent ||--o{ CustomerNotification : "terkait"
 
     LeasingCompany ||--o{ CreditApplication : "memproses"
 
@@ -182,6 +186,7 @@ erDiagram
     SalesAgreement ||--o{ CustomerComplaint : "terkait"
     SalesAgreementDetail ||--o{ WarrantyClaim : "terkait"
     SalesAgreement ||--o{ CustomerFeedback : "subjek dari"
+    SalesAgreement ||--o{ CustomerNotification : "terkait"
 
     LetterOfIntentDetail o|--|| SalesAgreementDetail : "dirinci dalam"
 

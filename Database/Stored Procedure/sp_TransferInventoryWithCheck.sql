@@ -1,70 +1,66 @@
-CREATE PROCEDURE sp_TransferInventoryWithCheck
-    @FromDealerID INT,
-    @ToDealerID INT,
-    @CarID INT,
-    @Quantity INT,
-    @MutationDate DATETIME
+-- =============================================
+-- Author:		<Sales System Development Team>
+-- Create date: <Current Date>
+-- Description:	Stored Procedure untuk melakukan transfer inventory antar dealer dengan pengecekan ketersediaan stok
+-- =============================================
+CREATE PROCEDURE [dbo].[sp_TransferInventoryWithCheck]
+	@FromDealerID int,
+	@ToDealerID int,
+	@CarModel varchar(100),
+	@Quantity int
 AS
 BEGIN
-    -- Mulai transaction
-    BEGIN TRANSACTION;
-    
-    BEGIN TRY
-        -- Cek kelayakan transfer menggunakan function
-        DECLARE @IsFeasible BIT;
-        SET @IsFeasible = dbo.fn_CheckTransferFeasibility(@FromDealerID, @CarID, @Quantity);
-        
-        -- Jika tidak layak, batalkan transfer
-        IF @IsFeasible = 0
-        BEGIN
-            RAISERROR('Transfer tidak dapat dilakukan karena stok di dealer asal tidak mencukupi.', 16, 1);
-            ROLLBACK TRANSACTION;
-            RETURN;
-        END
-        
-        -- Jika layak, lanjutkan dengan transfer
-        -- Kurangi stok di dealer asal
-        UPDATE DealerInventory
-        SET Stock = Stock - @Quantity
-        WHERE DealerID = @FromDealerID AND CarID = @CarID;
-        
-        -- Tambah stok di dealer tujuan
-        -- Cek apakah mobil sudah ada di inventori dealer tujuan
-        IF EXISTS (SELECT 1 FROM DealerInventory WHERE DealerID = @ToDealerID AND CarID = @CarID)
-        BEGIN
-            -- Jika sudah ada, update stok
-            UPDATE DealerInventory
-            SET Stock = Stock + @Quantity
-            WHERE DealerID = @ToDealerID AND CarID = @CarID;
-        END
-        ELSE
-        BEGIN
-            -- Jika belum ada, tambahkan entri baru
-            -- Untuk harga, diskon, dan fee, kita ambil dari dealer asal sebagai default
-            DECLARE @Price MONEY, @DiscountPercent FLOAT, @FeePercent FLOAT;
-            SELECT @Price = Price, @DiscountPercent = DiscountPercent, @FeePercent = FeePercent
-            FROM DealerInventory
-            WHERE DealerID = @FromDealerID AND CarID = @CarID;
-            
-            INSERT INTO DealerInventory (DealerID, CarID, Stock, Price, DiscountPercent, FeePercent)
-            VALUES (@ToDealerID, @CarID, @Quantity, ISNULL(@Price, 0), ISNULL(@DiscountPercent, 0), ISNULL(@FeePercent, 0));
-        END
-        
-        -- Catat transfer di tabel InventoryTransfer
-        INSERT INTO InventoryTransfer (FromDealerID, ToDealerID, CarID, Quantity, MutationDate)
-        VALUES (@FromDealerID, @ToDealerID, @CarID, @Quantity, @MutationDate);
-        
-        -- Commit transaction
-        COMMIT TRANSACTION;
-        PRINT 'Transfer stok berhasil dilakukan.';
-    END TRY
-    BEGIN CATCH
-        -- Rollback transaction jika terjadi error
-        IF @@TRANCOUNT > 0
-            ROLLBACK TRANSACTION;
-            
-        -- Re-throw error
-        THROW;
-    END CATCH
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Cek ketersediaan stok di dealer asal
+	DECLARE @AvailableStock int
+	SELECT @AvailableStock = Quantity 
+	FROM DealerInventory 
+	WHERE DealerID = @FromDealerID AND CarModel = @CarModel
+	
+	-- Jika stok tidak mencukupi, batalkan transfer
+	IF @AvailableStock < @Quantity
+	BEGIN
+		RAISERROR('Stok tidak mencukupi di dealer asal untuk model mobil yang diminta.', 16, 1)
+		RETURN
+	END
+	
+	-- Kurangi stok di dealer asal
+	UPDATE DealerInventory 
+	SET Quantity = Quantity - @Quantity
+	WHERE DealerID = @FromDealerID AND CarModel = @CarModel
+	
+	-- Tambah stok di dealer tujuan
+	IF EXISTS (SELECT 1 FROM DealerInventory WHERE DealerID = @ToDealerID AND CarModel = @CarModel)
+	BEGIN
+		UPDATE DealerInventory 
+		SET Quantity = Quantity + @Quantity
+		WHERE DealerID = @ToDealerID AND CarModel = @CarModel
+	END
+	ELSE
+	BEGIN
+		INSERT INTO DealerInventory (DealerID, CarModel, Quantity)
+		VALUES (@ToDealerID, @CarModel, @Quantity)
+	END
+	
+	-- Catat transfer di tabel InventoryTransfer
+	INSERT INTO InventoryTransfer (FromDealerID, ToDealerID, CarModel, Quantity, TransferDate)
+	VALUES (@FromDealerID, @ToDealerID, @CarModel, @Quantity, GETDATE())
+	
+	-- Update status LOI yang terkait dengan dealer tujuan menjadi ReadyForAgreement jika ada
+	UPDATE LetterOfIntent 
+	SET Status = 'ReadyForAgreement'
+	WHERE DealerID = @ToDealerID 
+	AND LOIID IN (
+		SELECT LOIID 
+		FROM LetterOfIntentDetail 
+		WHERE CarModel = @CarModel 
+		GROUP BY LOIID 
+		HAVING COUNT(*) <= @Quantity
+	)
+	AND Status = 'PendingStock'
+	
+	SELECT 'Transfer berhasil dilakukan.' AS Message
 END
-GO
