@@ -62,7 +62,7 @@ class _MainDrawerState extends State<MainDrawer> {
           ),
           ListTile(
             leading: const Icon(Icons.shopping_cart),
-            title: const Text('Keranjang'),
+            title: const Text('Cart'),
             onTap: () {
               context.go('/cart');
             },

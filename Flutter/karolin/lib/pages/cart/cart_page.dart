@@ -55,7 +55,7 @@ class _CartPageState extends State<CartPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Keranjang'),
+          title: const Text('Cart'),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
