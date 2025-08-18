@@ -2,6 +2,12 @@ Public Class TransferInventory
     Inherits Page
 
     Protected Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs) Handles Me.Load
+        ' Periksa apakah pengguna sudah login
+        If Not HttpContext.Current.User.Identity.IsAuthenticated Then
+            ' Jika belum login, arahkan ke halaman login
+            Response.Redirect("~/Login.aspx")
+        End If
+        
         If Not IsPostBack Then
             LoadDealers()
             LoadRiwayatTransfer()
@@ -41,6 +47,13 @@ Public Class TransferInventory
     End Sub
 
     Protected Sub btnProsesTransfer_Click(sender As Object, e As EventArgs) Handles btnProsesTransfer.Click
+        ' Periksa apakah pengguna sudah login
+        If Not HttpContext.Current.User.Identity.IsAuthenticated Then
+            ' Jika belum login, arahkan ke halaman login
+            Response.Redirect("~/Login.aspx")
+            Return
+        End If
+        
         ' TODO: Implementasi proses transfer inventory menggunakan stored procedure sp_TransferInventoryWithCheck
         ' Validasi input
         If String.IsNullOrEmpty(txtModelMobil.Text) OrElse String.IsNullOrEmpty(txtJumlahUnit.Text) Then

@@ -91,4 +91,31 @@ class AuthService {
     }
     return null;
   }
+  
+  Future<int?> getCustomerId() async {
+    final token = await getToken();
+    if (token != null) {
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+      // The key for customer ID in the JWT payload might be custom
+      // Let's check for common patterns
+      final customerId = decodedToken['CustomerId'] ?? 
+                        decodedToken['customerid'] ??
+                        decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+      
+      if (customerId != null) {
+        // If it's a string that represents a number, parse it
+        if (customerId is String) {
+          return int.tryParse(customerId);
+        }
+        // If it's already a number, convert it
+        if (customerId is int) {
+          return customerId;
+        }
+        if (customerId is num) {
+          return customerId.toInt();
+        }
+      }
+    }
+    return null;
+  }
 }

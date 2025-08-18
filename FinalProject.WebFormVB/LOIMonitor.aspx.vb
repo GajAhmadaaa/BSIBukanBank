@@ -2,6 +2,12 @@ Public Class LOIMonitor
     Inherits Page
 
     Protected Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs) Handles Me.Load
+        ' Periksa apakah pengguna sudah login
+        If Not HttpContext.Current.User.Identity.IsAuthenticated Then
+            ' Jika belum login, arahkan ke halaman login
+            Response.Redirect("~/Login.aspx")
+        End If
+        
         If Not IsPostBack Then
             LoadLOIPendingStock()
             LoadDealers()
@@ -39,6 +45,13 @@ Public Class LOIMonitor
     End Sub
 
     Protected Sub gvLOIPendingStock_RowCommand(sender As Object, e As GridViewCommandEventArgs)
+        ' Periksa apakah pengguna sudah login
+        If Not HttpContext.Current.User.Identity.IsAuthenticated Then
+            ' Jika belum login, arahkan ke halaman login
+            Response.Redirect("~/Login.aspx")
+            Return
+        End If
+        
         If e.CommandName = "KonfirmasiStok" Or e.CommandName = "TransferInventory" Then
             Dim loiid As Integer = Convert.ToInt32(e.CommandArgument)
             
@@ -60,6 +73,13 @@ Public Class LOIMonitor
     End Sub
 
     Protected Sub btnProsesTransfer_Click(sender As Object, e As EventArgs) Handles btnProsesTransfer.Click
+        ' Periksa apakah pengguna sudah login
+        If Not HttpContext.Current.User.Identity.IsAuthenticated Then
+            ' Jika belum login, arahkan ke halaman login
+            Response.Redirect("~/Login.aspx")
+            Return
+        End If
+        
         ' TODO: Implementasi proses transfer inventory menggunakan stored procedure sp_TransferInventoryWithCheck
         ' Untuk sekarang, hanya menampilkan pesan
         lblMessage.Text = "Transfer inventory dari " & ddlDealerAsal.SelectedItem.Text & " ke " & ddlDealerTujuan.SelectedItem.Text & " untuk model " & txtModelMobil.Text & " sebanyak " & txtJumlahUnit.Text & " unit berhasil diproses."

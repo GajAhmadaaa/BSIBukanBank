@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:karolin/models/order.dart';
 import 'package:karolin/services/order_service.dart';
+import 'package:karolin/services/auth_service.dart';
 
 class PendingPage extends StatefulWidget {
   const PendingPage({super.key});
@@ -12,8 +13,8 @@ class PendingPage extends StatefulWidget {
 
 class _PendingPageState extends State<PendingPage> {
   final OrderService _orderService = OrderService();
+  final AuthService _authService = AuthService();
   late Future<List<LetterOfIntent>> _pendingOrders;
-  final int _customerId = 1; // Placeholder customer ID
 
   @override
   void initState() {
@@ -22,12 +23,17 @@ class _PendingPageState extends State<PendingPage> {
   }
 
   Future<void> _loadPendingOrders() async {
-    setState(() {
-      _pendingOrders = _orderService.getOrdersByStatus(
-        _customerId,
-        ['PendingStock', 'ReadyForAgreement'], // Statuses for pending orders
-      );
-    });
+    final customerId = await _authService.getCustomerId();
+    if (customerId != null) {
+      setState(() {
+        _pendingOrders = _orderService.getPendingOrders(customerId);
+      });
+    } else {
+      // Handle case where customer ID is not available
+      setState(() {
+        _pendingOrders = Future.error('Customer ID not found');
+      });
+    }
   }
 
   @override

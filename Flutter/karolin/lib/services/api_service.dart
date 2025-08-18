@@ -26,55 +26,82 @@ class ApiService {
   }
 
   Future<dynamic> get(String endpoint) async {
-    final token = await _authService.getToken();
-    final response = await http.get(
-      Uri.parse('$_baseUrl/$endpoint'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+    try {
+      final token = await _authService.getToken();
+      final response = await http.get(
+        Uri.parse('$_baseUrl/$endpoint'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception(_parseErrorMessage(response));
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception(_parseErrorMessage(response));
+      }
+    } catch (e) {
+      // If it's already an Exception we threw, rethrow it
+      if (e is Exception) {
+        rethrow;
+      }
+      // Otherwise, wrap it
+      throw Exception('Network error: $e');
     }
   }
 
   Future<dynamic> post(String endpoint, Map<String, dynamic> data) async {
-    final token = await _authService.getToken();
-    final response = await http.post(
-      Uri.parse('$_baseUrl/$endpoint'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: json.encode(data),
-    );
+    try {
+      final token = await _authService.getToken();
+      final response = await http.post(
+        Uri.parse('$_baseUrl/$endpoint'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: json.encode(data),
+      );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return json.decode(response.body);
-    } else {
-      throw Exception(_parseErrorMessage(response));
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return json.decode(response.body);
+      } else {
+        throw Exception(_parseErrorMessage(response));
+      }
+    } catch (e) {
+      // If it's already an Exception we threw, rethrow it
+      if (e is Exception) {
+        rethrow;
+      }
+      // Otherwise, wrap it
+      throw Exception('Network error: $e');
     }
   }
   
   Future<dynamic> put(String endpoint, Map<String, dynamic> data) async {
-    final token = await _authService.getToken();
-    final response = await http.put(
-      Uri.parse('$_baseUrl/$endpoint'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: json.encode(data),
-    );
+    try {
+      final token = await _authService.getToken();
+      final response = await http.put(
+        Uri.parse('$_baseUrl/$endpoint'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: json.encode(data),
+      );
 
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception(_parseErrorMessage(response));
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception(_parseErrorMessage(response));
+      }
+    } catch (e) {
+      // If it's already an Exception we threw, rethrow it
+      if (e is Exception) {
+        rethrow;
+      }
+      // Otherwise, wrap it
+      throw Exception('Network error: $e');
     }
   }
 }

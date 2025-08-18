@@ -21,4 +21,26 @@ class OrderService {
     final allOrders = await getOrdersForCustomer(customerId);
     return allOrders.where((order) => statuses.contains(order.status)).toList();
   }
+  
+  // More efficient methods that directly call API endpoints for specific statuses
+  Future<List<LetterOfIntent>> getPendingOrders(int customerId) async {
+    final data = await _apiService.get('LetterOfIntent/customer/$customerId/pending');
+    return (data as List)
+        .map((item) => LetterOfIntent.fromJson(item))
+        .toList();
+  }
+  
+  Future<List<LetterOfIntent>> getUnpaidOrders(int customerId) async {
+    final data = await _apiService.get('LetterOfIntent/customer/$customerId/unpaid');
+    return (data as List)
+        .map((item) => LetterOfIntent.fromJson(item))
+        .toList();
+  }
+  
+  Future<List<LetterOfIntent>> getPaidOrders(int customerId) async {
+    final data = await _apiService.get('LetterOfIntent/customer/$customerId/paid');
+    return (data as List)
+        .map((item) => LetterOfIntent.fromJson(item))
+        .toList();
+  }
 }

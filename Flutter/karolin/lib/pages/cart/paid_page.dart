@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:karolin/models/order.dart';
 import 'package:karolin/services/order_service.dart';
+import 'package:karolin/services/auth_service.dart';
 
 class PaidPage extends StatefulWidget {
   const PaidPage({super.key});
@@ -12,8 +13,8 @@ class PaidPage extends StatefulWidget {
 
 class _PaidPageState extends State<PaidPage> {
   final OrderService _orderService = OrderService();
+  final AuthService _authService = AuthService();
   late Future<List<LetterOfIntent>> _paidOrders;
-  final int _customerId = 1; // Placeholder customer ID
 
   @override
   void initState() {
@@ -22,12 +23,17 @@ class _PaidPageState extends State<PaidPage> {
   }
 
   Future<void> _loadPaidOrders() async {
-    setState(() {
-      _paidOrders = _orderService.getOrdersByStatus(
-        _customerId,
-        ['Completed'], // Status for paid orders (assuming 'Completed' means paid)
-      );
-    });
+    final customerId = await _authService.getCustomerId();
+    if (customerId != null) {
+      setState(() {
+        _paidOrders = _orderService.getPaidOrders(customerId);
+      });
+    } else {
+      // Handle case where customer ID is not available
+      setState(() {
+        _paidOrders = Future.error('Customer ID not found');
+      });
+    }
   }
 
   @override

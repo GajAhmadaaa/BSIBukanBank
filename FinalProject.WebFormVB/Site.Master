@@ -51,6 +51,10 @@
                         <li class="nav-item"><a class="nav-link" runat="server" href="~/TransferInventory">Transfer Inventory</a></li>
                         <li class="nav-item"><a class="nav-link" runat="server" href="~/About">About</a></li>
                         <li class="nav-item"><a class="nav-link" runat="server" href="~/Contact">Contact</a></li>
+                        <li class="nav-item" id="LoginStatus" runat="server" visible="false">
+                            <asp:Label ID="lblUserInfo" runat="server" CssClass="nav-link"></asp:Label>
+                            <a class="nav-link" href="~/Logout.aspx">Logout</a>
+                        </li>
                     </ul>
                 </div>
             </div>
