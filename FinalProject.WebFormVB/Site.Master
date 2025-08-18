@@ -49,6 +49,9 @@
                         <li class="nav-item"><a class="nav-link" runat="server" href="~/">Home</a></li>
                         <li class="nav-item"><a class="nav-link" runat="server" href="~/LOIMonitor">Monitoring LOI</a></li>
                         <li class="nav-item"><a class="nav-link" runat="server" href="~/TransferInventory">Transfer Inventory</a></li>
+                        <li class="nav-item"><a class="nav-link" runat="server" href="~/DealerInventoryView">Lihat Inventaris Dealer</a></li>
+                        <li class="nav-item"><a class="nav-link" runat="server" href="~/DealerManagement">Manajemen Dealer</a></li>
+                        <li class="nav-item"><a class="nav-link" runat="server" href="~/CarManagement">Manajemen Mobil</a></li>
                         <li class="nav-item"><a class="nav-link" runat="server" href="~/About">About</a></li>
                         <li class="nav-item"><a class="nav-link" runat="server" href="~/Contact">Contact</a></li>
                         <li class="nav-item" id="LoginStatus" runat="server" visible="false">

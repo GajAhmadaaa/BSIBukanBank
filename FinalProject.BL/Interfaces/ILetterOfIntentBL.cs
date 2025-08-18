@@ -12,5 +12,11 @@ namespace FinalProject.BL.Interfaces
         Task<LetterOfIntentViewDTO> CreateWithDetailsAsync(LetterOfIntentWithDetailsInsertDTO letterOfIntentWithDetails);
         Task<LetterOfIntentViewDTO> UpdateAsync(int id, LetterOfIntentUpdateDTO letterOfIntent);
         Task DeleteAsync(int id);
+        
+        // Method tambahan untuk cart/order
+        Task<IEnumerable<LetterOfIntentViewDTO>> GetByCustomerIdAsync(int customerId);
+        Task<IEnumerable<LetterOfIntentViewDTO>> GetPendingByCustomerIdAsync(int customerId);
+        Task<IEnumerable<LetterOfIntentViewDTO>> GetUnpaidByCustomerIdAsync(int customerId);
+        Task<IEnumerable<LetterOfIntentViewDTO>> GetPaidByCustomerIdAsync(int customerId);
     }
 }

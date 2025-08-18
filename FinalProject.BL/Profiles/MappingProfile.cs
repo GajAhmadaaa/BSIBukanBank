@@ -41,6 +41,9 @@ namespace FinalProject.BL.Profiles
                 .ForMember(dest => dest.LetterOfIntentDetails, opt => opt.Ignore());
             
             // Mapping untuk LetterOfIntentDetail
+            CreateMap<LetterOfIntentDetail, LetterOfIntentDetailViewDTO>()
+                .ForMember(dest => dest.AgreedPrice, opt => opt.MapFrom(src => src.AgreedPrice))
+                .ForMember(dest => dest.CarName, opt => opt.MapFrom(src => src.Car.Name));
             CreateMap<LetterOfIntentDetailInsertDTO, LetterOfIntentDetail>()
                 .ForMember(dest => dest.AgreedPrice, opt => opt.MapFrom(src => src.Price));
             
@@ -52,6 +55,9 @@ namespace FinalProject.BL.Profiles
                 .ForMember(dest => dest.SalesAgreementDetails, opt => opt.Ignore());
             
             // Mapping untuk SalesAgreementDetail
+            CreateMap<SalesAgreementDetail, SalesAgreementDetailViewDTO>()
+                .ForMember(dest => dest.AgreedPrice, opt => opt.MapFrom(src => src.AgreedPrice))
+                .ForMember(dest => dest.CarName, opt => opt.MapFrom(src => src.Car.Name));
             CreateMap<SalesAgreementDetailInsertDTO, SalesAgreementDetail>();
             
             // Mapping untuk SalesPerson

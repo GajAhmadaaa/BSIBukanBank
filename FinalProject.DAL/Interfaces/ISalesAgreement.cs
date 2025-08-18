@@ -32,5 +32,10 @@ namespace FinalProject.DAL.Interfaces
         Task AddWithDetailsAsync(SalesAgreement agreement, SalesAgreementDetail details);
         Task UpdateWithDetailsAsync(SalesAgreement agreement, SalesAgreementDetail details);
         Task DeleteWithDetailsAsync(int agreementId);
+        
+        // Method untuk cart/agreement berdasarkan customer
+        Task<IEnumerable<SalesAgreement>> GetByCustomerIdAsync(int customerId);
+        Task<IEnumerable<SalesAgreement>> GetUnpaidByCustomerIdAsync(int customerId);
+        Task<IEnumerable<SalesAgreement>> GetPaidByCustomerIdAsync(int customerId);
     }
 }

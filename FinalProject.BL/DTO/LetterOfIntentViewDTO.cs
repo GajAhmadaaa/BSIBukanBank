@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace FinalProject.BL.DTO;
 
@@ -13,4 +14,7 @@ public class LetterOfIntentViewDTO
     public DateTime Loidate { get; set; }
     public string? PaymentMethod { get; set; }
     public string? Note { get; set; }
+    public string Status { get; set; } = string.Empty;
+    
+    public IEnumerable<LetterOfIntentDetailViewDTO> Details { get; set; } = new List<LetterOfIntentDetailViewDTO>();
 }

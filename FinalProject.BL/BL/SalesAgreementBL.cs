@@ -14,16 +14,19 @@ namespace FinalProject.BL.BL
     public class SalesAgreementBL : ISalesAgreementBL
     {
         private readonly ISalesAgreement _salesAgreementDAL;
+        private readonly ILetterOfIntent _letterOfIntentDAL;
         private readonly IMapper _mapper;
 
         /// <summary>
         /// Menginisialisasi instance baru dari kelas <see cref="SalesAgreementBL"/>.
         /// </summary>
         /// <param name="salesAgreementDAL">Lapisan akses data untuk SalesAgreement.</param>
+        /// <param name="letterOfIntentDAL">Lapisan akses data untuk LetterOfIntent.</param>
         /// <param name="mapper">Mapper untuk mapping objek.</param>
-        public SalesAgreementBL(ISalesAgreement salesAgreementDAL, IMapper mapper)
+        public SalesAgreementBL(ISalesAgreement salesAgreementDAL, ILetterOfIntent letterOfIntentDAL, IMapper mapper)
         {
             _salesAgreementDAL = salesAgreementDAL;
+            _letterOfIntentDAL = letterOfIntentDAL;
             _mapper = mapper;
         }
 
@@ -121,6 +124,111 @@ namespace FinalProject.BL.BL
                 return _mapper.Map<SalesAgreementViewDTO>(existingSalesAgreement);
             }
             return null;
+        }
+        
+        /// <summary>
+        /// Mendapatkan semua perjanjian penjualan berdasarkan ID customer.
+        /// </summary>
+        /// <param name="customerId">ID customer.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron, dengan koleksi DTO perjanjian penjualan.</returns>
+        public async Task<IEnumerable<SalesAgreementViewDTO>> GetByCustomerIdAsync(int customerId)
+        {
+            var salesAgreements = await _salesAgreementDAL.GetByCustomerIdAsync(customerId);
+            return _mapper.Map<IEnumerable<SalesAgreementViewDTO>>(salesAgreements);
+        }
+        
+        /// <summary>
+        /// Mendapatkan perjanjian penjualan dengan status unpaid berdasarkan ID customer.
+        /// </summary>
+        /// <param name="customerId">ID customer.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron, dengan koleksi DTO perjanjian penjualan unpaid.</returns>
+        public async Task<IEnumerable<SalesAgreementViewDTO>> GetUnpaidByCustomerIdAsync(int customerId)
+        {
+            var salesAgreements = await _salesAgreementDAL.GetUnpaidByCustomerIdAsync(customerId);
+            return _mapper.Map<IEnumerable<SalesAgreementViewDTO>>(salesAgreements);
+        }
+        
+        /// <summary>
+        /// Mendapatkan perjanjian penjualan dengan status paid berdasarkan ID customer.
+        /// </summary>
+        /// <param name="customerId">ID customer.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron, dengan koleksi DTO perjanjian penjualan paid.</returns>
+        public async Task<IEnumerable<SalesAgreementViewDTO>> GetPaidByCustomerIdAsync(int customerId)
+        {
+            var salesAgreements = await _salesAgreementDAL.GetPaidByCustomerIdAsync(customerId);
+            return _mapper.Map<IEnumerable<SalesAgreementViewDTO>>(salesAgreements);
+        }
+        
+        /// <summary>
+        /// Mengkonversi LetterOfIntent menjadi SalesAgreement.
+        /// </summary>
+        /// <param name="loiId">ID LetterOfIntent yang akan dikonversi.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron, dengan DTO perjanjian penjualan yang dibuat.</returns>
+        public async Task<SalesAgreementViewDTO> ConvertFromLOIAsync(int loiId)
+        {
+            // Mendapatkan LOI dengan detail
+            var loi = await _letterOfIntentDAL.GetByIdWithDetailsAsync(loiId);
+            if (loi == null)
+            {
+                throw new Exception("LetterOfIntent not found");
+            }
+            
+            // Memastikan LOI dalam status yang benar
+            if (loi.Status != "ReadyForAgreement")
+            {
+                throw new Exception("LetterOfIntent is not ready for agreement conversion");
+            }
+            
+            // Membuat SalesAgreement dari LOI
+            var salesAgreement = new SalesAgreement
+            {
+                LOIID = loi.Loiid,
+                DealerId = loi.DealerId,
+                CustomerId = loi.CustomerId,
+                SalesPersonId = loi.SalesPersonId,
+                AgreementDate = DateTime.Now,
+                TotalAmount = 0, // Akan dihitung berdasarkan detail
+                Status = "Unpaid", // Status awal adalah unpaid
+                Note = loi.Note
+            };
+            
+            // Membuat detail SalesAgreement dari detail LOI
+            var agreementDetails = new List<SalesAgreementDetail>();
+            decimal totalAmount = 0;
+            
+            foreach (var loiDetail in loi.LetterOfIntentDetails)
+            {
+                var agreementDetail = new SalesAgreementDetail
+                {
+                    CarId = loiDetail.CarId,
+                    AgreedPrice = loiDetail.AgreedPrice,
+                    Discount = loiDetail.Discount,
+                    Note = loiDetail.Note
+                };
+                
+                agreementDetails.Add(agreementDetail);
+                // Hitung total amount (bisa menggunakan fungsi database fn_GetFinalPrice)
+                totalAmount += loiDetail.AgreedPrice - (loiDetail.Discount ?? 0);
+            }
+            
+            salesAgreement.TotalAmount = totalAmount;
+            
+            // Menyimpan SalesAgreement
+            await _salesAgreementDAL.CreateAsync(salesAgreement);
+            
+            // Menyimpan detail SalesAgreement
+            if (agreementDetails.Any())
+            {
+                await _salesAgreementDAL.AddDetailsAsync(salesAgreement.SalesAgreementId, agreementDetails);
+            }
+            
+            // Mengubah status LOI menjadi "Converted"
+            loi.Status = "Converted";
+            await _letterOfIntentDAL.UpdateAsync(loi);
+            
+            // Mengambil kembali sales agreement dengan detail
+            var createdSalesAgreement = await _salesAgreementDAL.GetByIdWithDetailsAsync(salesAgreement.SalesAgreementId);
+            return _mapper.Map<SalesAgreementViewDTO>(createdSalesAgreement);
         }
     }
 }

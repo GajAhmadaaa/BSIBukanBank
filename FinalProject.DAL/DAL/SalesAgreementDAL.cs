@@ -1,6 +1,9 @@
 using FinalProject.BO.Models;
 using FinalProject.DAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace FinalProject.DAL.DAL
 {
@@ -35,6 +38,7 @@ namespace FinalProject.DAL.DAL
             {
                 return await _dbSet
                     .Include(a => a.SalesAgreementDetails)
+                        .ThenInclude(d => d.Car)
                     .ToListAsync();
             }
             catch (Exception ex)
@@ -125,6 +129,7 @@ namespace FinalProject.DAL.DAL
             {
                 return await _dbSet
                     .Include(a => a.SalesAgreementDetails)
+                        .ThenInclude(d => d.Car)
                     .FirstOrDefaultAsync(a => a.SalesAgreementId == id);
             }
             catch (Exception ex)
@@ -137,6 +142,55 @@ namespace FinalProject.DAL.DAL
         public new async Task<SalesAgreement?> GetByIdAsync(int id)
         {
             return await base.GetByIdAsync(id);
+        }
+        
+        // Method untuk cart/agreement berdasarkan customer
+        public async Task<IEnumerable<SalesAgreement>> GetByCustomerIdAsync(int customerId)
+        {
+            try
+            {
+                return await _dbSet
+                    .Include(a => a.SalesAgreementDetails)
+                        .ThenInclude(d => d.Car)
+                    .Where(a => a.CustomerId == customerId)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Gagal mengambil data berdasarkan Customer ID: {ex.Message}", ex);
+            }
+        }
+        
+        public async Task<IEnumerable<SalesAgreement>> GetUnpaidByCustomerIdAsync(int customerId)
+        {
+            try
+            {
+                return await _dbSet
+                    .Include(a => a.SalesAgreementDetails)
+                        .ThenInclude(d => d.Car)
+                    .Where(a => a.CustomerId == customerId && a.Status == "Unpaid")
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Gagal mengambil data unpaid berdasarkan Customer ID: {ex.Message}", ex);
+            }
+        }
+        
+        public async Task<IEnumerable<SalesAgreement>> GetPaidByCustomerIdAsync(int customerId)
+        {
+            try
+            {
+                return await _dbSet
+                    .Include(a => a.SalesAgreementDetails)
+                        .ThenInclude(d => d.Car)
+                    .Where(a => a.CustomerId == customerId && a.Status == "Paid")
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Gagal mengambil data paid berdasarkan Customer ID: {ex.Message}", ex);
+            }
         }
     }
 }

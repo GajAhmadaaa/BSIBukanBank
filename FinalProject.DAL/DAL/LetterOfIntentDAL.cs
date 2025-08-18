@@ -111,6 +111,7 @@ namespace FinalProject.DAL.DAL
             {
                 return await _dbSet
                     .Include(l => l.LetterOfIntentDetails)
+                        .ThenInclude(d => d.Car)
                     .ToListAsync();
             }
             catch (Exception ex)
@@ -132,6 +133,7 @@ namespace FinalProject.DAL.DAL
             {
                 return await _dbSet
                     .Include(l => l.LetterOfIntentDetails)
+                        .ThenInclude(d => d.Car)
                     .FirstOrDefaultAsync(l => l.Loiid == id);
             }
             catch (Exception ex)
@@ -144,6 +146,71 @@ namespace FinalProject.DAL.DAL
         public new async Task<LetterOfIntent?> GetByIdAsync(int id)
         {
             return await base.GetByIdAsync(id);
+        }
+        
+        // Method untuk cart/order berdasarkan customer
+        public async Task<IEnumerable<LetterOfIntent>> GetByCustomerIdAsync(int customerId)
+        {
+            try
+            {
+                return await _dbSet
+                    .Include(l => l.LetterOfIntentDetails)
+                        .ThenInclude(d => d.Car)
+                    .Where(l => l.CustomerId == customerId)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Gagal mengambil data berdasarkan Customer ID: {ex.Message}", ex);
+            }
+        }
+        
+        public async Task<IEnumerable<LetterOfIntent>> GetPendingByCustomerIdAsync(int customerId)
+        {
+            try
+            {
+                return await _dbSet
+                    .Include(l => l.LetterOfIntentDetails)
+                        .ThenInclude(d => d.Car)
+                    .Where(l => l.CustomerId == customerId && l.Status == "Pending")
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Gagal mengambil data pending berdasarkan Customer ID: {ex.Message}", ex);
+            }
+        }
+        
+        public async Task<IEnumerable<LetterOfIntent>> GetUnpaidByCustomerIdAsync(int customerId)
+        {
+            try
+            {
+                return await _dbSet
+                    .Include(l => l.LetterOfIntentDetails)
+                        .ThenInclude(d => d.Car)
+                    .Where(l => l.CustomerId == customerId && l.Status == "Unpaid")
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Gagal mengambil data unpaid berdasarkan Customer ID: {ex.Message}", ex);
+            }
+        }
+        
+        public async Task<IEnumerable<LetterOfIntent>> GetPaidByCustomerIdAsync(int customerId)
+        {
+            try
+            {
+                return await _dbSet
+                    .Include(l => l.LetterOfIntentDetails)
+                        .ThenInclude(d => d.Car)
+                    .Where(l => l.CustomerId == customerId && l.Status == "Paid")
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Gagal mengambil data paid berdasarkan Customer ID: {ex.Message}", ex);
+            }
         }
     }
 }

@@ -12,5 +12,11 @@ namespace FinalProject.BL.Interfaces
         Task<SalesAgreementViewDTO> CreateWithDetailsAsync(SalesAgreementWithDetailsInsertDTO salesAgreementWithDetails);
         Task<SalesAgreementViewDTO> UpdateAsync(int id, SalesAgreementUpdateDTO salesAgreement);
         Task DeleteAsync(int id);
+        
+        // Method tambahan untuk cart/agreement
+        Task<IEnumerable<SalesAgreementViewDTO>> GetByCustomerIdAsync(int customerId);
+        Task<IEnumerable<SalesAgreementViewDTO>> GetUnpaidByCustomerIdAsync(int customerId);
+        Task<IEnumerable<SalesAgreementViewDTO>> GetPaidByCustomerIdAsync(int customerId);
+        Task<SalesAgreementViewDTO> ConvertFromLOIAsync(int loiId);
     }
 }

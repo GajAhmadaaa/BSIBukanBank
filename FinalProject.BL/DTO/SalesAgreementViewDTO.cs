@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace FinalProject.BL.DTO;
 
@@ -12,4 +13,6 @@ public class SalesAgreementViewDTO
     public DateTime TransactionDate { get; set; }
     public decimal? TotalAmount { get; set; }
     public string? Status { get; set; }
+    
+    public IEnumerable<SalesAgreementDetailViewDTO> Details { get; set; } = new List<SalesAgreementDetailViewDTO>();
 }

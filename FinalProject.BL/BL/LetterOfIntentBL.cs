@@ -123,5 +123,49 @@ namespace FinalProject.BL.BL
             }
             return null;
         }
+        
+        /// <summary>
+        /// Mendapatkan semua surat niat berdasarkan ID customer.
+        /// </summary>
+        /// <param name="customerId">ID customer.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron, dengan koleksi DTO surat niat.</returns>
+        public async Task<IEnumerable<LetterOfIntentViewDTO>> GetByCustomerIdAsync(int customerId)
+        {
+            var letterOfIntents = await _letterOfIntentDAL.GetByCustomerIdAsync(customerId);
+            return _mapper.Map<IEnumerable<LetterOfIntentViewDTO>>(letterOfIntents);
+        }
+        
+        /// <summary>
+        /// Mendapatkan surat niat dengan status pending berdasarkan ID customer.
+        /// </summary>
+        /// <param name="customerId">ID customer.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron, dengan koleksi DTO surat niat pending.</returns>
+        public async Task<IEnumerable<LetterOfIntentViewDTO>> GetPendingByCustomerIdAsync(int customerId)
+        {
+            var letterOfIntents = await _letterOfIntentDAL.GetPendingByCustomerIdAsync(customerId);
+            return _mapper.Map<IEnumerable<LetterOfIntentViewDTO>>(letterOfIntents);
+        }
+        
+        /// <summary>
+        /// Mendapatkan surat niat dengan status unpaid berdasarkan ID customer.
+        /// </summary>
+        /// <param name="customerId">ID customer.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron, dengan koleksi DTO surat niat unpaid.</returns>
+        public async Task<IEnumerable<LetterOfIntentViewDTO>> GetUnpaidByCustomerIdAsync(int customerId)
+        {
+            var letterOfIntents = await _letterOfIntentDAL.GetUnpaidByCustomerIdAsync(customerId);
+            return _mapper.Map<IEnumerable<LetterOfIntentViewDTO>>(letterOfIntents);
+        }
+        
+        /// <summary>
+        /// Mendapatkan surat niat dengan status paid berdasarkan ID customer.
+        /// </summary>
+        /// <param name="customerId">ID customer.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron, dengan koleksi DTO surat niat paid.</returns>
+        public async Task<IEnumerable<LetterOfIntentViewDTO>> GetPaidByCustomerIdAsync(int customerId)
+        {
+            var letterOfIntents = await _letterOfIntentDAL.GetPaidByCustomerIdAsync(customerId);
+            return _mapper.Map<IEnumerable<LetterOfIntentViewDTO>>(letterOfIntents);
+        }
     }
 }

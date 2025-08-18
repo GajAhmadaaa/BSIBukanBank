@@ -1,4 +1,5 @@
 import 'package:karolin/models/order.dart';
+import 'package:karolin/models/sales_agreement.dart';
 import 'package:karolin/services/api_service.dart';
 
 class OrderService {
@@ -9,36 +10,26 @@ class OrderService {
     return LetterOfIntent.fromJson(data);
   }
 
-  Future<List<LetterOfIntent>> getOrdersForCustomer(int customerId) async {
-    // Assuming an endpoint to get all orders for a customer
-    final data = await _apiService.get('LetterOfIntent/customer/$customerId');
+  // Methods for SalesAgreement (Unpaid/Paid orders)
+  Future<List<SalesAgreement>> getUnpaidAgreements(int customerId) async {
+    final data = await _apiService.get('SalesAgreement/customer/$customerId/unpaid');
     return (data as List)
-        .map((item) => LetterOfIntent.fromJson(item))
+        .map((item) => SalesAgreement.fromJson(item))
         .toList();
   }
-
-  Future<List<LetterOfIntent>> getOrdersByStatus(int customerId, List<String> statuses) async {
-    final allOrders = await getOrdersForCustomer(customerId);
-    return allOrders.where((order) => statuses.contains(order.status)).toList();
+  
+  Future<List<SalesAgreement>> getPaidAgreements(int customerId) async {
+    final data = await _apiService.get('SalesAgreement/customer/$customerId/paid');
+    return (data as List)
+        .map((item) => SalesAgreement.fromJson(item))
+        .toList();
   }
   
-  // More efficient methods that directly call API endpoints for specific statuses
+  // Method for Pending orders (still using LOI)
   Future<List<LetterOfIntent>> getPendingOrders(int customerId) async {
-    final data = await _apiService.get('LetterOfIntent/customer/$customerId/pending');
-    return (data as List)
-        .map((item) => LetterOfIntent.fromJson(item))
-        .toList();
-  }
-  
-  Future<List<LetterOfIntent>> getUnpaidOrders(int customerId) async {
-    final data = await _apiService.get('LetterOfIntent/customer/$customerId/unpaid');
-    return (data as List)
-        .map((item) => LetterOfIntent.fromJson(item))
-        .toList();
-  }
-  
-  Future<List<LetterOfIntent>> getPaidOrders(int customerId) async {
-    final data = await _apiService.get('LetterOfIntent/customer/$customerId/paid');
+    // For now, we'll get LOI with status ReadyForAgreement as pending
+    // In a more complete implementation, we might want to get both PendingStock and ReadyForAgreement
+    final data = await _apiService.get('LetterOfIntent/customer/$customerId/ready');
     return (data as List)
         .map((item) => LetterOfIntent.fromJson(item))
         .toList();

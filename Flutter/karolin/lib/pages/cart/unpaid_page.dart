@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:karolin/models/order.dart';
+import 'package:karolin/models/sales_agreement.dart';
 import 'package:karolin/services/order_service.dart';
 import 'package:karolin/services/auth_service.dart';
 
@@ -14,32 +14,32 @@ class UnpaidPage extends StatefulWidget {
 class _UnpaidPageState extends State<UnpaidPage> {
   final OrderService _orderService = OrderService();
   final AuthService _authService = AuthService();
-  late Future<List<LetterOfIntent>> _unpaidOrders;
+  late Future<List<SalesAgreement>> _unpaidAgreements;
 
   @override
   void initState() {
     super.initState();
-    _loadUnpaidOrders();
+    _loadUnpaidAgreements();
   }
 
-  Future<void> _loadUnpaidOrders() async {
+  Future<void> _loadUnpaidAgreements() async {
     final customerId = await _authService.getCustomerId();
     if (customerId != null) {
       setState(() {
-        _unpaidOrders = _orderService.getUnpaidOrders(customerId);
+        _unpaidAgreements = _orderService.getUnpaidAgreements(customerId);
       });
     } else {
       // Handle case where customer ID is not available
       setState(() {
-        _unpaidOrders = Future.error('Customer ID not found');
+        _unpaidAgreements = Future.error('Customer ID not found');
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<LetterOfIntent>>(
-      future: _unpaidOrders,
+    return FutureBuilder<List<SalesAgreement>>(
+      future: _unpaidAgreements,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -53,11 +53,11 @@ class _UnpaidPageState extends State<UnpaidPage> {
                 Icon(Icons.money_off, size: 80, color: Colors.grey),
                 SizedBox(height: 16),
                 Text(
-                  'No unpaid orders.',
+                  'No unpaid agreements.',
                   style: TextStyle(fontSize: 18, color: Colors.grey),
                 ),
                 Text(
-                  'Orders awaiting payment will appear here.',
+                  'Agreements awaiting payment will appear here.',
                   style: TextStyle(fontSize: 14, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
@@ -65,19 +65,19 @@ class _UnpaidPageState extends State<UnpaidPage> {
             ),
           );
         } else {
-          final orders = snapshot.data!;
+          final agreements = snapshot.data!;
           return ListView.builder(
-            itemCount: orders.length,
+            itemCount: agreements.length,
             itemBuilder: (context, index) {
-              final order = orders[index];
+              final agreement = agreements[index];
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                 child: ListTile(
-                  title: Text('Order ID: ${order.id}'),
-                  subtitle: Text('Status: ${order.status}\nDate: ${order.loidate.toLocal()}'),
+                  title: Text('Agreement ID: ${agreement.id}'),
+                  subtitle: Text('Status: ${agreement.status}\nDate: ${agreement.transactionDate.toLocal()}'),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
-                    context.push('/order/${order.id}');
+                    context.push('/order/${agreement.id}');
                   },
                 ),
               );

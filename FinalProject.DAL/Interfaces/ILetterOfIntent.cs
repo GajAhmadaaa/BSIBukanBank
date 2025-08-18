@@ -24,5 +24,11 @@ namespace FinalProject.DAL.Interfaces
         Task AddWithDetailsAsync(LetterOfIntent loi, LetterOfIntentDetail details);
         Task UpdateWithDetailsAsync(LetterOfIntent loi, LetterOfIntentDetail details);
         Task DeleteWithDetailsAsync(int loiId);
+        
+        // Method untuk cart/order berdasarkan customer
+        Task<IEnumerable<LetterOfIntent>> GetByCustomerIdAsync(int customerId);
+        Task<IEnumerable<LetterOfIntent>> GetPendingByCustomerIdAsync(int customerId);
+        Task<IEnumerable<LetterOfIntent>> GetUnpaidByCustomerIdAsync(int customerId);
+        Task<IEnumerable<LetterOfIntent>> GetPaidByCustomerIdAsync(int customerId);
     }
 }
