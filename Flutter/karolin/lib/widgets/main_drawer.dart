@@ -56,7 +56,7 @@ class _MainDrawerState extends State<MainDrawer> {
             leading: const Icon(Icons.notifications),
             title: const Text('Notifications'),
             onTap: () {
-              context.go('/notification');
+              context.push('/notification');
             },
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           ),
@@ -64,7 +64,7 @@ class _MainDrawerState extends State<MainDrawer> {
             leading: const Icon(Icons.shopping_cart),
             title: const Text('Cart'),
             onTap: () {
-              context.go('/cart');
+              context.push('/cart');
             },
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           ),
@@ -74,7 +74,7 @@ class _MainDrawerState extends State<MainDrawer> {
               leading: const Icon(Icons.person),
               title: const Text('Profile'),
               onTap: () {
-                context.go('/profile');
+                context.push('/profile');
               },
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             ),
@@ -94,7 +94,7 @@ class _MainDrawerState extends State<MainDrawer> {
               leading: const Icon(Icons.login),
               title: const Text('Login'),
               onTap: () {
-                context.go('/login');
+                context.push('/login');
               },
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             ),
@@ -102,7 +102,7 @@ class _MainDrawerState extends State<MainDrawer> {
               leading: const Icon(Icons.person_add),
               title: const Text('Register'),
               onTap: () {
-                context.go('/register');
+                context.push('/register');
               },
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             ),

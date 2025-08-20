@@ -33,7 +33,7 @@ class _CartPageState extends State<CartPage> {
 
   int _getCurrentIndex() {
     final location = widget.state.uri.toString();
-    if (location == '/cart' || location.endsWith('/cart')) {
+    if (location == '/cart/pending' || location.endsWith('/cart/pending')) {
       return 0;
     }
     if (location.endsWith('/cart/unpaid')) {
@@ -48,21 +48,18 @@ class _CartPageState extends State<CartPage> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (bool didPop, Object? result) {
-        if (didPop) {
-          return;
+      canPop: true, // biarin dia bisa pop
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          // kalau masih belum pop, arahkan manual
+          context.go('/');
         }
-        context.go('/home');
       },
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Cart'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              context.go('/home');
-            },
+          leading: BackButton(
+            onPressed: () => context.go('/home'),
           ),
         ),
         body: _isLoggedIn
@@ -74,7 +71,7 @@ class _CartPageState extends State<CartPage> {
                     const Text('Please login to view your cart.'),
                     const SizedBox(height: 24),
                     ElevatedButton(
-                      onPressed: () => context.go('/login'),
+                      onPressed: () => context.push('/login'),
                       child: const Text('Login'),
                     ),
                   ],
@@ -100,7 +97,7 @@ class _CartPageState extends State<CartPage> {
                 onTap: (index) {
                   switch (index) {
                     case 0:
-                      context.go('/cart');
+                      context.go('/cart/pending');
                       break;
                     case 1:
                       context.go('/cart/unpaid');
@@ -116,3 +113,4 @@ class _CartPageState extends State<CartPage> {
     );
   }
 }
+

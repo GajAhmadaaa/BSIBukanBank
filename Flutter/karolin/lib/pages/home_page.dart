@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.shopping_cart),
             onPressed: () {
-              context.push('/cart');
+              context.push('/cart/pending');
             },
           ),
           IconButton(

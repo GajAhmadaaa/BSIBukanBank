@@ -63,7 +63,7 @@ final GoRouter appRouter = GoRouter(
       },
       routes: <RouteBase>[
         GoRoute(
-          path: '/cart',
+          path: '/cart/pending',
           builder: (BuildContext context, GoRouterState state) {
             return const PendingPage();
           },

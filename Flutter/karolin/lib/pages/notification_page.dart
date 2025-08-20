@@ -20,6 +20,7 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   void initState() {
     super.initState();
+    _notifications = Future.value([]); // Initialize here
     _checkLoginStatusAndLoadNotifications();
   }
 
