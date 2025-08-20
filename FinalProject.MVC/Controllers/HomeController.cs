@@ -19,7 +19,6 @@ namespace FinalProject.MVC.Controllers
             return View();
         }
 
-        [Authorize]
         public IActionResult Contact()
         {
             ViewData["Message"] = "Your contact page.";

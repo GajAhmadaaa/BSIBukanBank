@@ -19,6 +19,7 @@ class _UnpaidPageState extends State<UnpaidPage> {
   @override
   void initState() {
     super.initState();
+    _unpaidAgreements = Future.value([]); // Initialize with empty list to prevent LateInitializationError
     _loadUnpaidAgreements();
   }
 
@@ -31,7 +32,7 @@ class _UnpaidPageState extends State<UnpaidPage> {
     } else {
       // Handle case where customer ID is not available
       setState(() {
-        _unpaidAgreements = Future.error('Customer ID not found');
+        _unpaidAgreements = Future.value([]); // Return empty list instead of error
       });
     }
   }
@@ -44,7 +45,34 @@ class _UnpaidPageState extends State<UnpaidPage> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, size: 80, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Error: ${snapshot.error}',
+                    style: const TextStyle(fontSize: 18, color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'An error occurred while loading your agreements. Please try again.',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: _loadUnpaidAgreements,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(
             child: Column(

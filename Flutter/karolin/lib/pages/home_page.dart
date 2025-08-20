@@ -400,15 +400,15 @@ class _HomePageState extends State<HomePage> {
                         onPressed: () {
                           // Navigasi ke halaman kebijakan privasi
                         },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.all(0),
+                          minimumSize: const Size(0, 0),
+                        ),
                         child: const Text(
                           'Kebijakan Privasi',
                           style: TextStyle(
                             fontSize: 12,
                           ),
-                        ),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.all(0),
-                          minimumSize: const Size(0, 0),
                         ),
                       ),
                     ],

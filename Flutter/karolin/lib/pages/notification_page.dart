@@ -15,7 +15,6 @@ class _NotificationPageState extends State<NotificationPage> {
   final NotificationService _notificationService = NotificationService();
   final AuthService _authService = AuthService();
   late Future<List<CustomerNotification>> _notifications;
-  final int _customerId = 1; // Placeholder customer ID
   bool _isLoggedIn = false;
 
   @override
@@ -27,10 +26,17 @@ class _NotificationPageState extends State<NotificationPage> {
   Future<void> _checkLoginStatusAndLoadNotifications() async {
     final token = await _authService.getToken();
     if (token != null) {
-      setState(() {
-        _isLoggedIn = true;
-        _notifications = _notificationService.getNotifications(_customerId);
-      });
+      final customerId = await _authService.getCustomerId();
+      if (customerId != null) {
+        setState(() {
+          _isLoggedIn = true;
+          _notifications = _notificationService.getNotifications(customerId);
+        });
+      } else {
+        setState(() {
+          _isLoggedIn = false;
+        });
+      }
     } else {
       setState(() {
         _isLoggedIn = false;
@@ -38,11 +44,14 @@ class _NotificationPageState extends State<NotificationPage> {
     }
   }
 
-  void _refreshNotifications() {
+  void _refreshNotifications() async {
     if (_isLoggedIn) {
-      setState(() {
-        _notifications = _notificationService.getNotifications(_customerId);
-      });
+      final customerId = await _authService.getCustomerId();
+      if (customerId != null) {
+        setState(() {
+          _notifications = _notificationService.getNotifications(customerId);
+        });
+      }
     }
   }
 
@@ -76,7 +85,52 @@ class _NotificationPageState extends State<NotificationPage> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
+                  final error = snapshot.error;
+                  final errorMessage = error?.toString() ?? 'Unknown error';
+                  
+                  // Handle specific error cases
+                  String displayMessage = 'An error occurred while loading your notifications. Please try again.';
+                  IconData errorIcon = Icons.error;
+                  Color iconColor = Colors.red;
+                  
+                  if (errorMessage.contains('404')) {
+                    displayMessage = 'No notifications found.';
+                    errorIcon = Icons.notifications_off;
+                    iconColor = Colors.grey;
+                  } else if (errorMessage.contains('Network')) {
+                    displayMessage = 'Network error. Please check your connection and try again.';
+                  } else if (errorMessage.contains('Unauthorized') || errorMessage.contains('401')) {
+                    displayMessage = 'Authentication error. Please log in again.';
+                  }
+                  
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(errorIcon, size: 80, color: iconColor),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Error: $errorMessage',
+                            style: const TextStyle(fontSize: 18, color: Colors.red),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            displayMessage,
+                            style: const TextStyle(fontSize: 14, color: Colors.grey),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: _checkLoginStatusAndLoadNotifications,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(
                     child: Column(

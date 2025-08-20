@@ -16,7 +16,7 @@ builder.Services.AddCors(options =>
             policy
             .SetIsOriginAllowed(origin =>
                 origin.StartsWith("http://localhost:") ||
-                origin.StartsWith("http://192.168.1.") // ganti dengan IP lokal PC Anda jika berbeda
+                origin.StartsWith("http://172.17.143.") // ganti dengan IP lokal PC Anda jika berbeda
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
@@ -25,6 +25,13 @@ builder.Services.AddCors(options =>
 
 // Add services to the container.
 builder.Services.AddBusinessLogicLayer(builder.Configuration);
+
+// Override default authentication scheme to return 401 instead of redirect
+builder.Services.PostConfigure<Microsoft.AspNetCore.Authentication.AuthenticationOptions>(options =>
+{
+    options.DefaultChallengeScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+});
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {

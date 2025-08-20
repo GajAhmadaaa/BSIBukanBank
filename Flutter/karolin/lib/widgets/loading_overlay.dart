@@ -22,7 +22,7 @@ class LoadingOverlay extends StatelessWidget {
         AbsorbPointer(
           absorbing: true,
           child: Container(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withAlpha((0.5 * 255).toInt()),
             child: const Center(
               child: CircularProgressIndicator(),
             ),

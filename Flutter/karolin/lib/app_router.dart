@@ -59,7 +59,7 @@ final GoRouter appRouter = GoRouter(
     ),
     ShellRoute(
       builder: (BuildContext context, GoRouterState state, Widget child) {
-        return CartPage(child: child, state: state);
+        return CartPage(state: state, child: child);
       },
       routes: <RouteBase>[
         GoRoute(

@@ -14,15 +14,29 @@ namespace FinalProject.MVC.Controllers
         private readonly FinalProjectContext _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public AccountController(
             FinalProjectContext context,
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager,
+            RoleManager<IdentityRole> roleManager)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
+            
+            // Ensure "customer" role exists
+            InitializeRoles().Wait();
+        }
+
+        private async Task InitializeRoles()
+        {
+            if (!await _roleManager.RoleExistsAsync("customer"))
+            {
+                var roleResult = await _roleManager.CreateAsync(new IdentityRole("customer"));
+            }
         }
 
         public IActionResult Login(string? returnUrl = null)
@@ -66,7 +80,7 @@ namespace FinalProject.MVC.Controllers
                             {
                                 await _userManager.RemoveClaimAsync(user, existingClaim);
                             }
-                            await _userManager.AddClaimAsync(user, new Claim("CustomerId", customer.CustomerId.ToString()));
+                            await _userManager.AddClaimAsync(user, new Claim("CustomerId", customer.CustomerId.ToString(), ClaimValueTypes.Integer32));
                             
                             // Refresh the sign-in cookie to include the new claim
                             await _signInManager.RefreshSignInAsync(user);
@@ -117,6 +131,14 @@ namespace FinalProject.MVC.Controllers
                 if (existingUser != null)
                 {
                     ModelState.AddModelError("Email", "Email is already taken.");
+                    return View(model);
+                }
+
+                // Check if customer with same email already exists
+                var existingCustomer = await _context.Customers.FirstOrDefaultAsync(c => c.Email == model.Email);
+                if (existingCustomer != null)
+                {
+                    ModelState.AddModelError("Email", "Customer with this email already exists.");
                     return View(model);
                 }
 

@@ -11,7 +11,7 @@ public partial class CustomerNotification
 
     public int CustomerId { get; set; }
 
-    public int? Loid { get; set; }
+    public int? Loiid { get; set; }
 
     public int? SalesAgreementId { get; set; }
 
@@ -27,7 +27,7 @@ public partial class CustomerNotification
 
     public virtual Customer Customer { get; set; }
 
-    public virtual LetterOfIntent LetterOfIntent { get; set; }
+    public virtual LetterOfIntent Loi { get; set; }
 
     public virtual SalesAgreement SalesAgreement { get; set; }
 }

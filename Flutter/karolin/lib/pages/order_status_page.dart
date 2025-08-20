@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:karolin/models/order.dart';
 import 'package:karolin/models/sales_agreement.dart';
 import 'package:karolin/services/auth_service.dart';
@@ -20,6 +21,7 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
   late Future<dynamic> _order; // Could be LetterOfIntent or SalesAgreement
   bool _isLoggedIn = false;
   bool _isSalesAgreement = false;
+  final DateFormat _dateFormat = DateFormat('dd/MM/yyyy HH:mm');
 
   @override
   void initState() {
@@ -103,7 +105,7 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
           const SizedBox(height: 8),
           Text('Status: ${order.status}'),
           const SizedBox(height: 8),
-          Text('Date: ${order.loidate.toLocal()}'),
+          Text('Date: ${_dateFormat.format(order.loidate)}'),
           const SizedBox(height: 16),
           const Text('Details:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           Expanded(
@@ -115,8 +117,8 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   child: ListTile(
                     title: Text(detail.carName),
-                    subtitle: Text('Price: \${detail.agreedPrice.toStringAsFixed(2)}'),
-                    trailing: Text('Discount: \${detail.discount?.toStringAsFixed(2) ?? '0.00'}'),
+                    subtitle: Text('Price: \$${detail.agreedPrice.toStringAsFixed(2)}'),
+                    trailing: Text('Discount: \$${detail.discount?.toStringAsFixed(2) ?? '0.00'}'),
                   ),
                 );
               },
@@ -135,11 +137,11 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
         children: [
           Text('Agreement ID: ${agreement.id}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text('Status: ${agreement.status}'),
+          Text('Status: ${agreement.status ?? 'Unknown'}'),
           const SizedBox(height: 8),
-          Text('Date: ${agreement.transactionDate.toLocal()}'),
+          Text('Date: ${_dateFormat.format(agreement.transactionDate)}'),
           const SizedBox(height: 8),
-          Text('Total Amount: \${agreement.totalAmount?.toStringAsFixed(2) ?? '0.00'}'),
+          Text('Total Amount: \$${agreement.totalAmount?.toStringAsFixed(2) ?? '0.00'}'),
           const SizedBox(height: 16),
           const Text('Details:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           Expanded(
@@ -151,8 +153,8 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   child: ListTile(
                     title: Text(detail.carName),
-                    subtitle: Text('Price: \${detail.agreedPrice.toStringAsFixed(2)}'),
-                    trailing: Text('Discount: \${detail.discount?.toStringAsFixed(2) ?? '0.00'}'),
+                    subtitle: Text('Price: \$${detail.agreedPrice.toStringAsFixed(2)}'),
+                    trailing: Text('Discount: \$${detail.discount != null ? detail.discount!.toStringAsFixed(2) : '0.00'}'),
                   ),
                 );
               },

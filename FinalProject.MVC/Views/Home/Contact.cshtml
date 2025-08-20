@@ -1,41 +1,168 @@
 @{
-    ViewData["Title"] = "Contact";
+    ViewData["Title"] = "Contact Us";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>This is a protected page. You can only see this if you are logged in.</p>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 500px;
+      width: 100%;
+    }
+  </style>
 
-<div class="row">
-    <div class="col-md-6">
-        <h2>Contact Information</h2>
-        <address>
-            <strong>Dealer Mobil</strong><br>
-            Jl. Merdeka No. 123, Jakarta<br>
-            <abbr title="Phone">P:</abbr>
-            (021) 123-4567
-        </address>
-
-        <address>
-            <strong>Support:</strong> <a href="mailto:Support@example.com">Support@dealermobil.com</a><br />
-            <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@dealermobil.com</a>
-        </address>
+<div class="container">
+    <div class="row">
+        <div class="col-12 text-center my-5">
+            <h1 class="display-4 fw-bold text-primary">@ViewData["Title"]</h1>
+            <p class="lead text-muted">We'd love to hear from you! Reach out to us through any of these channels.</p>
+        </div>
     </div>
-    <div class="col-md-6">
-        <h2>Send us a message</h2>
-        <form>
-            <div class="form-group mb-3">
-                <label for="name" class="form-label">Name</label>
-                <input type="text" class="form-control" id="name" placeholder="Enter your name">
+
+    <div class="row g-4 mb-5">
+        <!-- Contact Information Card -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-info-circle me-2"></i>Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-start mb-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="bi bi-geo-alt text-primary fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold">Our Address</h6>
+                            <p class="mb-0">Jl. Merdeka No. 123</p>
+                            <p class="mb-0">Jakarta, Indonesia 12345</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start mb-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="bi bi-telephone text-success fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold">Phone Numbers</h6>
+                            <p class="mb-1"><strong>Sales:</strong> (021) 123-4567</p>
+                            <p class="mb-1"><strong>Service:</strong> (021) 123-4568</p>
+                            <p class="mb-0"><strong>Customer Care:</strong> (021) 123-4569</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start">
+                        <div class="bg-info bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="bi bi-envelope text-info fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold">Email Addresses</h6>
+                            <p class="mb-1"><strong>General Inquiries:</strong> <a href="mailto:info@karolin.com">info@karolin.com</a></p>
+                            <p class="mb-1"><strong>Sales:</strong> <a href="mailto:sales@karolin.com">sales@karolin.com</a></p>
+                            <p class="mb-1"><strong>Support:</strong> <a href="mailto:support@karolin.com">support@karolin.com</a></p>
+                            <p class="mb-0"><strong>Marketing:</strong> <a href="mailto:marketing@karolin.com">marketing@karolin.com</a></p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="form-group mb-3">
-                <label for="email" class="form-label">Email address</label>
-                <input type="email" class="form-control" id="email" placeholder="Enter your email">
+        </div>
+
+        <!-- Contact Form Card -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-envelope me-2"></i>Send us a Message</h5>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" placeholder="Enter your full name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" placeholder="Enter your email address">
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" placeholder="What is this regarding?">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" rows="5" placeholder="Type your message here..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-send me-2"></i>Send Message
+                        </button>
+                    </form>
+                </div>
             </div>
-            <div class="form-group mb-3">
-                <label for="message" class="form-label">Message</label>
-                <textarea class="form-control" id="message" rows="5" placeholder="Enter your message"></textarea>
+        </div>
+    </div>
+
+    <!-- Map Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-map me-2"></i>Our Location</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div id="map" style="height: 400px; width: 100%;"></div>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary">Send Message</button>
-        </form>
+        </div>
+    </div>
+
+    <!-- Business Hours -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-clock me-2"></i>Business Hours</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="bg-primary bg-opacity-10 rounded p-3">
+                                <h6 class="fw-bold">Monday-Friday</h6>
+                                <p class="mb-0">8:00 AM - 8:00 PM</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="bg-success bg-opacity-10 rounded p-3">
+                                <h6 class="fw-bold">Saturday</h6>
+                                <p class="mb-0">9:00 AM - 6:00 PM</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="bg-info bg-opacity-10 rounded p-3">
+                                <h6 class="fw-bold">Sunday</h6>
+                                <p class="mb-0">10:00 AM - 4:00 PM</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="bg-warning bg-opacity-10 rounded p-3">
+                                <h6 class="fw-bold">Holidays</h6>
+                                <p class="mb-0">Closed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    // Inisialisasi peta
+    var map = L.map('map').setView([-6.200000, 106.816666], 11); // Koordinat Jakarta
+
+    // Tambahkan tile layer (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Tambahkan marker
+    var marker = L.marker([-6.200000, 106.816666]).addTo(map);
+    marker.bindPopup("Dealer Pusat").openPopup();
+</script>

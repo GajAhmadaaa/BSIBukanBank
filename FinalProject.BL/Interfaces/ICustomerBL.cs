@@ -8,6 +8,7 @@ namespace FinalProject.BL.Interfaces
     {
         Task<IEnumerable<CustomerViewDTO>> GetAllCustomers();
         Task<CustomerViewDTO> GetCustomerById(int id);
+        Task<CustomerViewDTO> GetCustomerByEmail(string email);
         Task<CustomerViewDTO> CreateCustomer(CustomerInsertDTO customer);
         Task<CustomerViewDTO> UpdateCustomer(CustomerUpdateDTO customer);
         Task DeleteCustomer(int id);

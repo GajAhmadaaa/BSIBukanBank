@@ -27,9 +27,8 @@ class OrderService {
   
   // Method for Pending orders (still using LOI)
   Future<List<LetterOfIntent>> getPendingOrders(int customerId) async {
-    // For now, we'll get LOI with status ReadyForAgreement as pending
-    // In a more complete implementation, we might want to get both PendingStock and ReadyForAgreement
-    final data = await _apiService.get('LetterOfIntent/customer/$customerId/ready');
+    // For now, we'll get LOI with status Pending as pending
+    final data = await _apiService.get('LetterOfIntent/customer/$customerId/pending');
     return (data as List)
         .map((item) => LetterOfIntent.fromJson(item))
         .toList();

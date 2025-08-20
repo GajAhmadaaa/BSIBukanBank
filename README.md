@@ -1,6 +1,6 @@
-# Dealer Mobil - FinalProject.MVC
+# Karolin - FinalProject.MVC
 
-Selamat datang di Dealer Mobil, sebuah aplikasi web berbasis ASP.NET Core MVC yang dirancang untuk mengelola operasional dealer mobil.
+Selamat datang di Karolin, sebuah aplikasi web berbasis ASP.NET Core MVC yang dirancang untuk mengelola operasional dealer mobil.
 
 ## Fitur Utama
 

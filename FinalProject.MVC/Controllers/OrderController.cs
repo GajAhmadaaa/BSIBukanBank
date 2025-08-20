@@ -12,21 +12,19 @@ namespace FinalProject.MVC.Controllers
     public class OrderController : Controller
     {
         private readonly ILetterOfIntentBL _letterOfIntentBL;
-        private readonly ICustomerBL _customerBL;
         private readonly IDealerInventoryBL _dealerInventoryBL;
         private readonly IDealerBL _dealerBL;
-        private readonly ISalesPersonBL _salesPersonBL;
         private readonly ICarBL _carBL; // Add ICarBL to get car details
 
         public OrderController(
             ILetterOfIntentBL letterOfIntentBL,
+            IDealerInventoryBL dealerInventoryBL,
             IDealerBL dealerBL,
-            ISalesPersonBL salesPersonBL,
             ICarBL carBL)
         {
             _letterOfIntentBL = letterOfIntentBL;
+            _dealerInventoryBL = dealerInventoryBL;
             _dealerBL = dealerBL;
-            _salesPersonBL = salesPersonBL;
             _carBL = carBL;
         }
 
@@ -34,18 +32,27 @@ namespace FinalProject.MVC.Controllers
         public async Task<IActionResult> Index()
         {
             var customerIdClaim = User.FindFirst("CustomerId")?.Value;
-            if (int.TryParse(customerIdClaim, out int customerId))
+            
+            if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
             {
-                var orders = await _letterOfIntentBL.GetAllAsync();
-                var customerOrders = orders.Where(o => o.CustomerId == customerId).OrderByDescending(o => o.Loidate);
-                return View(customerOrders);
+                return NotFound("Customer not found.");
             }
-            return View(new List<LetterOfIntentViewDTO>());
+            
+            var orders = await _letterOfIntentBL.GetAllAsync();
+            var customerOrders = orders.Where(o => o.CustomerId == customerId).OrderByDescending(o => o.Loidate);
+            return View(customerOrders);
         }
 
         // GET: Order/Create
         public async Task<IActionResult> Create()
         {
+            var customerIdClaim = User.FindFirst("CustomerId")?.Value;
+            
+            if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out _))
+            {
+                return NotFound("Customer not found.");
+            }
+            
             await PopulateDropdowns();
             return View(new SimplifiedOrderViewModel());
         }
@@ -62,7 +69,8 @@ namespace FinalProject.MVC.Controllers
             }
 
             var customerIdClaim = User.FindFirst("CustomerId")?.Value;
-            if (!int.TryParse(customerIdClaim, out int customerId))
+            
+            if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
             {
                 return NotFound("Customer not found.");
             }
@@ -77,38 +85,53 @@ namespace FinalProject.MVC.Controllers
 
             try
             {
-                // Get dealer price, fallback to base price if not available
-                var dealerInventory = await _dealerInventoryBL.GetByDealerAndCarAsync(model.DealerId, model.CarId);
-                var price = dealerInventory?.Price ?? car.BasePrice;
-
-                var loiDetails = new List<LetterOfIntentDetailInsertDTO>();
-                for (int i = 0; i < model.Quantity; i++)
+                var selectedCar = await _carBL.GetCarById(model.CarId);
+                if (selectedCar == null)
                 {
-                    loiDetails.Add(new LetterOfIntentDetailInsertDTO
-                    {
-                        CarId = model.CarId,
-                        Price = price, // Use dealer price or base price
-                        Discount = 0,
-                        Note = ""
-                    });
+                    ModelState.AddModelError("CarId", "Selected car is not valid.");
+                    await PopulateDropdowns();
+                    return View(model);
                 }
 
-                var loiWithDetailsDTO = new LetterOfIntentWithDetailsInsertDTO
+                try
                 {
-                    CustomerId = customerId,
-                    DealerId = model.DealerId,
-                    // Set SalesPersonId to null as requested
-                    SalesPersonId = null,
-                    Loidate = DateTime.Now,
-                    PaymentMethod = "Cash", // Default
-                    Note = model.Note,
-                    Details = loiDetails
-                };
+                    // Get dealer price, fallback to base price if not available
+                    var dealerInventory = await _dealerInventoryBL.GetByDealerAndCarAsync(model.DealerId, model.CarId);
+                    var price = dealerInventory?.Price ?? selectedCar.BasePrice;
 
-                var createdLOI = await _letterOfIntentBL.CreateWithDetailsAsync(loiWithDetailsDTO);
+                    var loiDetails = new List<LetterOfIntentDetailInsertDTO>();
+                    for (int i = 0; i < model.Quantity; i++)
+                    {
+                        loiDetails.Add(new LetterOfIntentDetailInsertDTO
+                        {
+                            CarId = model.CarId,
+                            Price = price, // Use dealer price or base price
+                            Discount = 0,
+                            Note = ""
+                        });
+                    }
 
-                TempData["SuccessMessage"] = "Order created successfully!";
-                return RedirectToAction(nameof(Details), new { id = createdLOI.Id });
+                    var loiWithDetailsDTO = new LetterOfIntentWithDetailsInsertDTO
+                    {
+                        CustomerId = customerId,
+                        DealerId = model.DealerId,
+                        // Set SalesPersonId to null as requested
+                        SalesPersonId = null,
+                        Loidate = DateTime.Now,
+                        PaymentMethod = "Cash", // Default
+                        Note = model.Note,
+                        Details = loiDetails
+                    };
+
+                    var createdLOI = await _letterOfIntentBL.CreateWithDetailsAsync(loiWithDetailsDTO);
+
+                    TempData["SuccessMessage"] = "Order created successfully!";
+                    return RedirectToAction(nameof(Details), new { id = createdLOI.Id });
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
             }
             catch (Exception ex)
             {
@@ -122,7 +145,8 @@ namespace FinalProject.MVC.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var customerIdClaim = User.FindFirst("CustomerId")?.Value;
-            if (!int.TryParse(customerIdClaim, out int customerId))
+            
+            if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
             {
                 return NotFound("Customer not found.");
             }

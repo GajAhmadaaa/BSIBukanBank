@@ -49,8 +49,10 @@ class _CartPageState extends State<CartPage> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (bool didPop) {
-        if (didPop) return;
+      onPopInvokedWithResult: (bool didPop, Object? result) {
+        if (didPop) {
+          return;
+        }
         context.go('/home');
       },
       child: Scaffold(

@@ -6,7 +6,7 @@
 CREATE FUNCTION [dbo].[fn_CheckTransferFeasibility]
 (
 	@DealerID int,
-	@CarModel varchar(100),
+	@CarID int,
 	@RequestedQuantity int
 )
 RETURNS bit
@@ -16,9 +16,9 @@ BEGIN
 	DECLARE @AvailableStock int
 	
 	-- Cek stok yang tersedia di dealer
-	SELECT @AvailableStock = ISNULL(Quantity, 0)
+	SELECT @AvailableStock = ISNULL(Stock, 0)
 	FROM DealerInventory 
-	WHERE DealerID = @DealerID AND CarModel = @CarModel
+	WHERE DealerID = @DealerID AND CarID = @CarID
 	
 	-- Jika stok mencukupi, set nilai kelayakan menjadi 1 (true)
 	IF @AvailableStock >= @RequestedQuantity

@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:karolin/config.dart';
 import 'package:karolin/models/user.dart';
+import 'package:karolin/models/customer.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 class AuthService {
@@ -95,25 +96,122 @@ class AuthService {
   Future<int?> getCustomerId() async {
     final token = await getToken();
     if (token != null) {
+      // First try to get customer ID from JWT token
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+      
       // The key for customer ID in the JWT payload might be custom
       // Let's check for common patterns
-      final customerId = decodedToken['CustomerId'] ?? 
+      final customerIdFromToken = decodedToken['CustomerId'] ?? 
                         decodedToken['customerid'] ??
                         decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
       
-      if (customerId != null) {
+      if (customerIdFromToken != null) {
         // If it's a string that represents a number, parse it
-        if (customerId is String) {
-          return int.tryParse(customerId);
+        if (customerIdFromToken is String) {
+          return int.tryParse(customerIdFromToken);
         }
         // If it's already a number, convert it
-        if (customerId is int) {
-          return customerId;
+        if (customerIdFromToken is int) {
+          return customerIdFromToken;
         }
-        if (customerId is num) {
-          return customerId.toInt();
+        if (customerIdFromToken is num) {
+          return customerIdFromToken.toInt();
         }
+      }
+      
+      // If not found in token, fetch customer by email and get ID
+      try {
+        // Get email from token - try multiple possible keys
+        final email = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ?? 
+                     decodedToken['email'];
+        if (email != null) {
+          final response = await http.get(
+            Uri.parse('$_baseUrl/Customer/email/$email'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+          );
+          
+          if (response.statusCode == 200) {
+            final data = json.decode(response.body);
+            // Assuming the API returns a customer object with an Id field
+            final customerId = data['CustomerId'] ?? data['Id'];
+            if (customerId is int) {
+              return customerId;
+            }
+            if (customerId is String) {
+              return int.tryParse(customerId);
+            }
+            return customerId as int?;
+          }
+        }
+      } catch (e) {
+        print('Error fetching customer by email: $e');
+      }
+    }
+    return null;
+  }
+  
+  Future<Customer?> getCustomerDetails() async {
+    final token = await getToken();
+    if (token != null) {
+      try {
+        // First try to get customer details from JWT token
+        Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+        
+        // Try to get customer info directly from token
+        final customerIdFromToken = decodedToken['CustomerId'] ?? 
+                          decodedToken['customerid'] ??
+                          decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+        
+        final customerNameFromToken = decodedToken['CustomerName'] ?? 
+                            decodedToken['customername'] ??
+                            decodedToken['name'];
+        
+        final customerEmailFromToken = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ?? 
+                             decodedToken['email'];
+        
+        // If we have enough info from token, create customer object
+        if (customerIdFromToken != null && customerEmailFromToken != null) {
+          int? customerId;
+          if (customerIdFromToken is String) {
+            customerId = int.tryParse(customerIdFromToken);
+          } else if (customerIdFromToken is int) {
+            customerId = customerIdFromToken;
+          } else if (customerIdFromToken is num) {
+            customerId = customerIdFromToken.toInt();
+          }
+          
+          if (customerId != null) {
+            return Customer(
+              id: customerId,
+              name: customerNameFromToken ?? customerEmailFromToken,
+              email: customerEmailFromToken,
+              address: null,
+              phoneNumber: null,
+            );
+          }
+        }
+        
+        // If not found in token, fetch customer by email
+        final email = customerEmailFromToken;
+        if (email != null) {
+          final response = await http.get(
+            Uri.parse('$_baseUrl/Customer/email/$email'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+          );
+          
+          if (response.statusCode == 200) {
+            final data = json.decode(response.body);
+            return Customer.fromJson(data);
+          }
+        }
+      } catch (e) {
+        print('Error fetching customer details: $e');
       }
     }
     return null;

@@ -414,7 +414,7 @@ namespace FinalProject.DAL.Migrations
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("Loid")
+                    b.Property<int?>("Loiid")
                         .HasColumnType("int")
                         .HasColumnName("LOIID");
 
@@ -442,7 +442,7 @@ namespace FinalProject.DAL.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("Loid");
+                    b.HasIndex("Loiid");
 
                     b.HasIndex("SalesAgreementId");
 
@@ -1411,9 +1411,9 @@ namespace FinalProject.DAL.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_CustomerNotification_Customer");
 
-                    b.HasOne("FinalProject.BO.Models.LetterOfIntent", "LetterOfIntent")
+                    b.HasOne("FinalProject.BO.Models.LetterOfIntent", "Loi")
                         .WithMany("CustomerNotifications")
-                        .HasForeignKey("Loid")
+                        .HasForeignKey("Loiid")
                         .HasConstraintName("FK_CustomerNotification_LetterOfIntent");
 
                     b.HasOne("FinalProject.BO.Models.SalesAgreement", "SalesAgreement")
@@ -1423,7 +1423,7 @@ namespace FinalProject.DAL.Migrations
 
                     b.Navigation("Customer");
 
-                    b.Navigation("LetterOfIntent");
+                    b.Navigation("Loi");
 
                     b.Navigation("SalesAgreement");
                 });

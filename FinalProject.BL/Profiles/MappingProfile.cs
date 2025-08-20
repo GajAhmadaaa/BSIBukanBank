@@ -34,7 +34,10 @@ namespace FinalProject.BL.Profiles
             CreateMap<DealerInventory, DealerInventoryUpdateDTO>().ReverseMap();
             
             // Mapping untuk LetterOfIntent
-            CreateMap<LetterOfIntent, LetterOfIntentViewDTO>().ReverseMap();
+            CreateMap<LetterOfIntent, LetterOfIntentViewDTO>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Loiid))
+                .ReverseMap()
+                .ForMember(dest => dest.Loiid, opt => opt.MapFrom(src => src.Id));
             CreateMap<LetterOfIntent, LetterOfIntentInsertDTO>().ReverseMap();
             CreateMap<LetterOfIntent, LetterOfIntentUpdateDTO>().ReverseMap();
             CreateMap<LetterOfIntentWithDetailsInsertDTO, LetterOfIntent>()
@@ -43,7 +46,7 @@ namespace FinalProject.BL.Profiles
             // Mapping untuk LetterOfIntentDetail
             CreateMap<LetterOfIntentDetail, LetterOfIntentDetailViewDTO>()
                 .ForMember(dest => dest.AgreedPrice, opt => opt.MapFrom(src => src.AgreedPrice))
-                .ForMember(dest => dest.CarName, opt => opt.MapFrom(src => src.Car.Name));
+                .ForMember(dest => dest.CarName, opt => opt.MapFrom(src => src.Car.Model));
             CreateMap<LetterOfIntentDetailInsertDTO, LetterOfIntentDetail>()
                 .ForMember(dest => dest.AgreedPrice, opt => opt.MapFrom(src => src.Price));
             
@@ -56,8 +59,8 @@ namespace FinalProject.BL.Profiles
             
             // Mapping untuk SalesAgreementDetail
             CreateMap<SalesAgreementDetail, SalesAgreementDetailViewDTO>()
-                .ForMember(dest => dest.AgreedPrice, opt => opt.MapFrom(src => src.AgreedPrice))
-                .ForMember(dest => dest.CarName, opt => opt.MapFrom(src => src.Car.Name));
+                .ForMember(dest => dest.AgreedPrice, opt => opt.MapFrom(src => src.Price))
+                .ForMember(dest => dest.CarName, opt => opt.MapFrom(src => src.Car.Model));
             CreateMap<SalesAgreementDetailInsertDTO, SalesAgreementDetail>();
             
             // Mapping untuk SalesPerson

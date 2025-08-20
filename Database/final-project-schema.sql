@@ -312,8 +312,8 @@ CREATE TABLE CustomerNotification (
     CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
     ReadDate DATETIME NULL,
     IsRead BIT NOT NULL DEFAULT 0,
-    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
-    FOREIGN KEY (LOIID) REFERENCES LetterOfIntent(LOIID),
-    FOREIGN KEY (SalesAgreementID) REFERENCES SalesAgreement(SalesAgreementID)
+    CONSTRAINT FK_CustomerNotification_Customer FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+    CONSTRAINT FK_CustomerNotification_LetterOfIntent FOREIGN KEY (LOIID) REFERENCES LetterOfIntent(LOIID),
+    CONSTRAINT FK_CustomerNotification_SalesAgreement FOREIGN KEY (SalesAgreementID) REFERENCES SalesAgreement(SalesAgreementID)
 );
 GO

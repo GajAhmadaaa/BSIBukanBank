@@ -182,14 +182,13 @@ namespace FinalProject.BL.BL
             // Membuat SalesAgreement dari LOI
             var salesAgreement = new SalesAgreement
             {
-                LOIID = loi.Loiid,
+                Loiid = loi.Loiid,
                 DealerId = loi.DealerId,
                 CustomerId = loi.CustomerId,
-                SalesPersonId = loi.SalesPersonId,
-                AgreementDate = DateTime.Now,
+                SalesPersonId = loi.SalesPersonId ?? 0, // Handle nullable int
+                TransactionDate = DateTime.Now,
                 TotalAmount = 0, // Akan dihitung berdasarkan detail
-                Status = "Unpaid", // Status awal adalah unpaid
-                Note = loi.Note
+                Status = "Unpaid" // Status awal adalah unpaid
             };
             
             // Membuat detail SalesAgreement dari detail LOI
@@ -201,7 +200,7 @@ namespace FinalProject.BL.BL
                 var agreementDetail = new SalesAgreementDetail
                 {
                     CarId = loiDetail.CarId,
-                    AgreedPrice = loiDetail.AgreedPrice,
+                    Price = loiDetail.AgreedPrice,
                     Discount = loiDetail.Discount,
                     Note = loiDetail.Note
                 };

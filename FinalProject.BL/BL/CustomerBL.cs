@@ -47,6 +47,16 @@ namespace FinalProject.BL.BL
             return _mapper.Map<CustomerViewDTO>(customer);
         }
 
+        public async Task<CustomerViewDTO> GetCustomerByEmail(string email)
+        {
+            var customer = await _customerDAL.GetCustomerByEmailAsync(email);
+            if (customer == null)
+            {
+                return null;
+            }
+            return _mapper.Map<CustomerViewDTO>(customer);
+        }
+
         public async Task<CustomerViewDTO> UpdateCustomer(CustomerUpdateDTO customer)
         {
             var existingCustomer = await _customerDAL.GetByIdAsync(customer.CustomerId);

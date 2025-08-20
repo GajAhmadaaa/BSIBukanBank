@@ -36,6 +36,18 @@ namespace FinalProject.API.Controllers
             return Ok(customer);
         }
 
+        [HttpGet("email/{email}")]
+        public async Task<ActionResult<CustomerViewDTO>> GetCustomerByEmail(string email)
+        {
+            var customer = await _customerBL.GetCustomerByEmail(email);
+            if (customer == null)
+            {
+                return NotFound($"Customer with email {email} not found.");
+            }
+            
+            return Ok(customer);
+        }
+
         [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult<CustomerViewDTO>> CreateCustomer(CustomerInsertDTO customerInsertDTO)
