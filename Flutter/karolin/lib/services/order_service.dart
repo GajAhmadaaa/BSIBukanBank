@@ -27,15 +27,16 @@ class OrderService {
     return SalesAgreement.fromJson(data);
   }
   
-  // Method to process payment
+  // Method to process payment with Cash payment type
   Future<void> processPayment(int agreementId, double amount) async {
     final paymentData = {
       'SalesAgreementID': agreementId,
-      'PaymentAmount': amount,
+      'PaymentAmount': amount.toDouble(),
       'PaymentDate': DateTime.now().toIso8601String(),
-      'PaymentType': 'FullPayment'
+      'PaymentType': 'Cash' // Hardcoded to Cash as per requirements
     };
     
+    print('Sending payment data: $paymentData');
     await _apiService.post('Payment', paymentData);
   }
 

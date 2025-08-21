@@ -29,7 +29,7 @@ namespace FinalProject.BL.BL
                 throw new ArgumentException("Sales Agreement not found.");
             }
 
-            if (agreement.Status == "Completed")
+            if (agreement.Status == "Paid")
             {
                 throw new InvalidOperationException("This agreement has already been paid in full.");
             }
@@ -41,7 +41,7 @@ namespace FinalProject.BL.BL
 
             if (agreement.TotalAmount.HasValue && totalPaid >= agreement.TotalAmount.Value)
             {
-                agreement.Status = "Completed";
+                agreement.Status = "Paid";
                 await _salesAgreementDAL.UpdateAsync(agreement);
             }
 

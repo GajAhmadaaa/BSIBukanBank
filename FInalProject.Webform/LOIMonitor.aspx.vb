@@ -1,9 +1,10 @@
 Imports System.Data.SqlClient
 Imports System.Configuration
+Imports System.Collections.Generic
 
 Public Class LOIMonitor
     Inherits Page
-    
+
     ' Helper function to get status class for badge styling
     Protected Function GetStatusClass(status As String) As String
         Select Case status.ToLower()
@@ -95,30 +96,80 @@ Public Class LOIMonitor
             Dim transaction As SqlTransaction = conn.BeginTransaction()
 
             Try
-                ' 1. Update LetterOfIntent status and SalesPersonID
-                Dim updateCmd As New SqlCommand("
+                ' Get DealerID and CustomerID from LOI
+                Dim dealerId As Integer = 0
+                Dim customerID As Integer = 0
+                Dim loiInfoCmd As New SqlCommand("SELECT DealerID, CustomerID FROM LetterOfIntent WHERE LOIID = @LOIID", conn, transaction)
+                loiInfoCmd.Parameters.AddWithValue("@LOIID", loiID)
+                Using reader As SqlDataReader = loiInfoCmd.ExecuteReader()
+                    If reader.Read() Then
+                        dealerId = Convert.ToInt32(reader("DealerID"))
+                        customerID = Convert.ToInt32(reader("CustomerID"))
+                    Else
+                        Throw New Exception("LOI not found.")
+                    End If
+                End Using
+
+                ' Get all cars in the LOI and count quantities for each
+                Dim requiredStock As New Dictionary(Of Integer, Integer)
+                Dim carsCmd As New SqlCommand("SELECT CarID FROM LetterOfIntentDetail WHERE LOIID = @LOIID", conn, transaction)
+                carsCmd.Parameters.AddWithValue("@LOIID", loiID)
+                Using reader As SqlDataReader = carsCmd.ExecuteReader()
+                    While reader.Read()
+                        Dim carId As Integer = Convert.ToInt32(reader("CarID"))
+                        If requiredStock.ContainsKey(carId) Then
+                            requiredStock(carId) += 1
+                        Else
+                            requiredStock(carId) = 1
+                        End If
+                    End While
+                End Using
+
+                If requiredStock.Count = 0 Then
+                    Throw New Exception("No cars found in this LOI.")
+                End If
+
+                ' Check stock for all cars
+                For Each carEntry As KeyValuePair(Of Integer, Integer) In requiredStock
+                    Dim carId As Integer = carEntry.Key
+                    Dim requiredQty As Integer = carEntry.Value
+
+                    Dim stockCheckCmd As New SqlCommand("SELECT Stock FROM DealerInventory WHERE DealerID = @DealerID AND CarID = @CarID", conn, transaction)
+                    stockCheckCmd.Parameters.AddWithValue("@DealerID", dealerId)
+                    stockCheckCmd.Parameters.AddWithValue("@CarID", carId)
+                    Dim currentStockObj As Object = stockCheckCmd.ExecuteScalar()
+                    Dim currentStock As Integer = If(currentStockObj IsNot Nothing AndAlso Not IsDBNull(currentStockObj), Convert.ToInt32(currentStockObj), 0)
+
+                    If currentStock < requiredQty Then
+                        Dim carModelCmd As New SqlCommand("SELECT Model FROM Car WHERE CarID = @CarID", conn, transaction)
+                        carModelCmd.Parameters.AddWithValue("@CarID", carId)
+                        Dim carModel As String = carModelCmd.ExecuteScalar().ToString()
+                        Throw New Exception("Not enough stock for " & carModel & ". Required: " & requiredQty & ", Available: " & currentStock)
+                    End If
+                Next
+
+                ' If stock is sufficient, update inventories
+                For Each carEntry As KeyValuePair(Of Integer, Integer) In requiredStock
+                    Dim carId As Integer = carEntry.Key
+                    Dim requiredQty As Integer = carEntry.Value
+                    Dim updateStockCmd As New SqlCommand("UPDATE DealerInventory SET Stock = Stock - @Quantity WHERE DealerID = @DealerID AND CarID = @CarID", conn, transaction)
+                    updateStockCmd.Parameters.AddWithValue("@Quantity", requiredQty)
+                    updateStockCmd.Parameters.AddWithValue("@DealerID", dealerId)
+                    updateStockCmd.Parameters.AddWithValue("@CarID", carId)
+                    updateStockCmd.ExecuteNonQuery()
+                Next
+
+                ' Update LetterOfIntent status and SalesPersonID
+                Dim updateLoiCmd As New SqlCommand("
                     UPDATE LetterOfIntent 
                     SET Status = 'ReadyForAgreement', SalesPersonID = @SalesPersonID
                     WHERE LOIID = @LOIID AND Status = 'Pending'", conn, transaction)
-                updateCmd.Parameters.AddWithValue("@LOIID", loiID)
-                updateCmd.Parameters.AddWithValue("@SalesPersonID", 1) ' Hardcoded SalesPersonID as requested
-
-                Dim result As Integer = updateCmd.ExecuteNonQuery()
+                updateLoiCmd.Parameters.AddWithValue("@LOIID", loiID)
+                updateLoiCmd.Parameters.AddWithValue("@SalesPersonID", 1) ' Hardcoded SalesPersonID as requested
+                Dim result As Integer = updateLoiCmd.ExecuteNonQuery()
 
                 If result > 0 Then
-                    ' 2. Get CustomerID from the LOI
-                    Dim customerID As Integer = 0
-                    Dim selectCmd As New SqlCommand("SELECT CustomerID FROM LetterOfIntent WHERE LOIID = @LOIID", conn, transaction)
-                    selectCmd.Parameters.AddWithValue("@LOIID", loiID)
-                    Dim customerIdResult = selectCmd.ExecuteScalar()
-                    If customerIdResult IsNot Nothing AndAlso Not IsDBNull(customerIdResult) Then
-                        customerID = Convert.ToInt32(customerIdResult)
-                    Else
-                        ' If customer not found, something is wrong, rollback.
-                        Throw New Exception("Customer not found for the given LOI.")
-                    End If
-
-                    ' 3. Insert notification for the customer
+                    ' Insert notification for the customer
                     Dim notificationMsg As String = "Stock for your order #" & loiID.ToString() & " has been confirmed and is ready for the next step."
                     Dim insertCmd As New SqlCommand("
                         INSERT INTO CustomerNotification (CustomerID, LOIID, NotificationType, Message, IsRead)
@@ -130,17 +181,14 @@ Public Class LOIMonitor
                     insertCmd.Parameters.AddWithValue("@IsRead", 0)
                     insertCmd.ExecuteNonQuery()
 
-                    ' If all successful, commit the transaction
                     transaction.Commit()
-                    litMessage.Text = "<div class=""alert alert-success"">Stock confirmed and notification sent for LOI ID: " & loiID.ToString() & "</div>"
-                    BindLOIs() ' Refresh the grid
+                    litMessage.Text = "<div class=""alert alert-success"">Stock confirmed, inventory updated, and notification sent for LOI ID: " & loiID.ToString() & "</div>"
+                    BindLOIs()
                 Else
-                    ' No rows affected, rollback
                     transaction.Rollback()
                     litMessage.Text = "<div class=""alert alert-warning"">Failed to confirm stock for LOI ID: " & loiID.ToString() & ". The LOI might not be in 'Pending' status.</div>"
                 End If
             Catch ex As Exception
-                ' Rollback transaction on error
                 transaction.Rollback()
                 litMessage.Text = "<div class=""alert alert-danger"">Error confirming stock: " & ex.Message & "</div>"
             Finally
@@ -246,8 +294,6 @@ Public Class LOIMonitor
             End Try
         End Using
     End Sub
-
-    
     
     ' New refresh button handler
     Protected Sub btnRefresh_Click(sender As Object, e As EventArgs)

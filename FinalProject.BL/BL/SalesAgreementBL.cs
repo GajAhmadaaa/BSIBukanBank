@@ -250,7 +250,7 @@ namespace FinalProject.BL.BL
                 throw new Exception("SalesAgreement is not in unpaid status");
             }
             
-            // Mengubah status menjadi "Paid"
+            // Mengubah status menjadi "Paid" (bukan "Completed")
             salesAgreement.Status = "Paid";
             
             // Memperbarui SalesAgreement di database

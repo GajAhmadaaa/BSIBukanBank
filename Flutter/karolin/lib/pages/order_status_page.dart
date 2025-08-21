@@ -121,25 +121,33 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
       // Get the current agreement data first
       final SalesAgreement currentAgreement = await _orderService.getSalesAgreementById(agreementId);
       
-      // Process payment first
-      await _orderService.processPayment(agreementId, currentAgreement.totalAmount ?? 0);
-      
-      // Then mark agreement as paid
-      final SalesAgreement updatedAgreement = await _orderService.markAgreementAsPaid(agreementId);
+      try {
+        // Process payment with Cash payment type - this will automatically update agreement status
+        await _orderService.processPayment(agreementId, currentAgreement.totalAmount ?? 0);
+      } catch (paymentError) {
+        // Hide loading indicator
+        Navigator.of(context).pop();
+        
+        // Show error message
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to process payment: $paymentError')),
+          );
+        }
+        return;
+      }
       
       // Hide loading indicator
       Navigator.of(context).pop();
       
-      // Refresh the page to show updated status
-      setState(() {
-        _order = Future.value(updatedAgreement);
-      });
-      
-      // Show success message
+      // Show success message and navigate to paid orders page
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Payment processed successfully')),
         );
+
+        // Navigate to paid orders page
+        context.go('/cart/paid');
       }
     } catch (error) {
       // Hide loading indicator

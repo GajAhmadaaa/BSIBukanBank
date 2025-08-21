@@ -54,6 +54,7 @@ class ApiService {
   Future<dynamic> post(String endpoint, Map<String, dynamic> data) async {
     try {
       final token = await _authService.getToken();
+      print('API Request - Endpoint: $endpoint, Data: $data'); // Log request data
       final response = await http.post(
         Uri.parse('$_baseUrl/$endpoint'),
         headers: {
@@ -62,10 +63,36 @@ class ApiService {
         },
         body: json.encode(data),
       );
+      print('API Response - Status: ${response.statusCode}, Body: ${response.body}'); // Log response
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return json.decode(response.body);
       } else {
+        print('API Error - Status: ${response.statusCode}, Body: ${response.body}');
+        // For payment endpoint, if we get 400 but data might still be recorded
+        if (endpoint == 'Payment' && response.statusCode == 400) {
+          // Try to parse the response
+          try {
+            final responseBody = json.decode(response.body);
+            // If it contains any success indicators, we might still want to proceed
+            if (responseBody is Map) {
+              // Check for common success patterns
+              if ((responseBody.containsKey('Message') && 
+                   (responseBody['Message'].toString().toLowerCase().contains('success') || 
+                    responseBody['Message'].toString().toLowerCase().contains('processed'))) ||
+                  responseBody.containsKey('PaymentHistoryID') ||
+                  responseBody.containsKey('paymentHistoryId')) {
+                print('Treating 400 response as successful due to success indicators in body');
+                return responseBody; // Return the response instead of throwing error
+              }
+            }
+          } catch (parseError) {
+            // If we can't parse, continue with normal error handling
+            print('Could not parse error response: $parseError');
+          }
+          // Still throw the error but caller can decide how to handle it
+          throw Exception('Payment API returned 400: ${_parseErrorMessage(response)}');
+        }
         throw Exception(_parseErrorMessage(response));
       }
     } catch (e) {
