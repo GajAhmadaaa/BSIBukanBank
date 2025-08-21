@@ -60,8 +60,8 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF2196F3), // Blue
-              Color(0xFF21CBF3), // Light Blue
+              Color(0xFF1976D2), // Mitsubishi Blue
+              Color(0xFF2196F3), // Lighter Blue
             ],
           ),
         ),
@@ -87,9 +87,9 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                       ],
                     ),
                     child: const Icon(
-                      Icons.shopping_cart,
+                      Icons.directions_car,
                       size: 80,
-                      color: Color(0xFF2196F3),
+                      color: Color(0xFF1976D2),
                     ),
                   ),
                 ),
@@ -120,7 +120,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
               FadeTransition(
                 opacity: _opacityAnimation,
                 child: const Text(
-                  'Your Shopping Solution',
+                  'Dealer Resmi Mitsubishi',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.white70,

@@ -84,6 +84,9 @@ Public Class AgreementMonitor
         If e.CommandName = "ViewDetail" Then
             ' Handle View Detail button click
             ShowAgreementDetails(agreementID)
+        ElseIf e.CommandName = "MarkAsComplete" Then
+            ' Handle Mark as Complete button click
+            MarkAgreementAsComplete(agreementID)
         End If
     End Sub
 
@@ -174,6 +177,58 @@ Public Class AgreementMonitor
         End Using
     End Sub
     
+    Private Sub MarkAgreementAsComplete(ByVal agreementID As Integer)
+        Dim connectionString As String = ConfigurationManager.ConnectionStrings("DefaultConnection").ConnectionString
+        Using conn As New SqlConnection(connectionString)
+            conn.Open()
+            Dim transaction As SqlTransaction = conn.BeginTransaction()
+
+            Try
+                ' Get CustomerID from SalesAgreement
+                Dim customerID As Integer = 0
+                Dim saInfoCmd As New SqlCommand("SELECT CustomerID FROM SalesAgreement WHERE SalesAgreementID = @SalesAgreementID", conn, transaction)
+                saInfoCmd.Parameters.AddWithValue("@SalesAgreementID", agreementID)
+                Dim customerIdResult As Object = saInfoCmd.ExecuteScalar()
+
+                If customerIdResult Is Nothing OrElse IsDBNull(customerIdResult) Then
+                    Throw New Exception("Sales Agreement not found or CustomerID is missing.")
+                End If
+                customerID = Convert.ToInt32(customerIdResult)
+
+                ' Update SalesAgreement status
+                Dim updateCmd As New SqlCommand("UPDATE SalesAgreement SET Status = 'Completed' WHERE SalesAgreementID = @SalesAgreementID AND Status = 'Paid'", conn, transaction)
+                updateCmd.Parameters.AddWithValue("@SalesAgreementID", agreementID)
+                Dim result As Integer = updateCmd.ExecuteNonQuery()
+
+                If result > 0 Then
+                    ' Insert notification
+                    Dim notificationMsg As String = "Congratulations! Your sales agreement #" & agreementID.ToString() & " has been completed."
+                    Dim insertCmd As New SqlCommand("INSERT INTO CustomerNotification (CustomerID, SalesAgreementID, NotificationType, Message, IsRead) VALUES (@CustomerID, @SalesAgreementID, @NotificationType, @Message, @IsRead)", conn, transaction)
+                    insertCmd.Parameters.AddWithValue("@CustomerID", customerID)
+                    insertCmd.Parameters.AddWithValue("@SalesAgreementID", agreementID)
+                    insertCmd.Parameters.AddWithValue("@NotificationType", "Agreement Completed")
+                    insertCmd.Parameters.AddWithValue("@Message", notificationMsg)
+                    insertCmd.Parameters.AddWithValue("@IsRead", 0)
+                    insertCmd.ExecuteNonQuery()
+
+                    transaction.Commit()
+                    litMessage.Text = "<div class=""alert alert-success"">Agreement #" & agreementID.ToString() & " marked as complete and notification sent.</div>"
+                    BindAgreements()
+                Else
+                    transaction.Rollback()
+                    litMessage.Text = "<div class=""alert alert-warning"">Could not mark agreement as complete. It might not be in 'Paid' status.</div>"
+                End If
+            Catch ex As Exception
+                transaction.Rollback()
+                litMessage.Text = "<div class=""alert alert-danger"">An error occurred: " & ex.Message & "</div>"
+            Finally
+                If conn.State = ConnectionState.Open Then
+                    conn.Close()
+                End If
+            End Try
+        End Using
+    End Sub
+
     ' New refresh button handler
     Protected Sub btnRefresh_Click(sender As Object, e As EventArgs)
         BindAgreements()

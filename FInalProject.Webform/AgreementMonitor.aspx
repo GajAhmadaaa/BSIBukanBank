@@ -35,7 +35,12 @@
                                     <ItemTemplate>
                                         <asp:Button ID="btnViewDetail" runat="server" CommandName="ViewDetail" 
                                             CommandArgument='<%# Eval("SalesAgreementID") %>' Text="View Detail" 
-                                            CssClass="btn btn-outline-primary btn-sm" />
+                                            CssClass="btn btn-outline-primary btn-sm me-1" />
+                                        <asp:Button ID="btnMarkAsComplete" runat="server" CommandName="MarkAsComplete" 
+                                            CommandArgument='<%# Eval("SalesAgreementID") %>' Text="Mark as Complete" 
+                                            CssClass="btn btn-success btn-sm" 
+                                            Visible='<%# Eval("Status").ToString() = "Paid" %>'
+                                            OnClientClick="return confirm('Are you sure you want to mark this agreement as complete?');" />
                                     </ItemTemplate>
                                 </asp:TemplateField>
                             </Columns>
