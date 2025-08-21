@@ -11,7 +11,7 @@ Option Strict On
 Option Explicit On
 
 
-Partial Public Class LOIMonitor
+Partial Public Class AgreementMonitor
 
     '''<summary>
     '''BodyContent control.
@@ -32,13 +32,13 @@ Partial Public Class LOIMonitor
     Protected WithEvents btnRefresh As Global.System.Web.UI.WebControls.Button
 
     '''<summary>
-    '''gvLOIs control.
+    '''gvAgreements control.
     '''</summary>
     '''<remarks>
     '''Auto-generated field.
     '''To modify move field declaration from designer file to code-behind file.
     '''</remarks>
-    Protected WithEvents gvLOIs As Global.System.Web.UI.WebControls.GridView
+    Protected WithEvents gvAgreements As Global.System.Web.UI.WebControls.GridView
 
     '''<summary>
     '''litMessage control.
@@ -50,13 +50,13 @@ Partial Public Class LOIMonitor
     Protected WithEvents litMessage As Global.System.Web.UI.WebControls.Literal
 
     '''<summary>
-    '''lblLOIID control.
+    '''lblAgreementID control.
     '''</summary>
     '''<remarks>
     '''Auto-generated field.
     '''To modify move field declaration from designer file to code-behind file.
     '''</remarks>
-    Protected WithEvents lblLOIID As Global.System.Web.UI.WebControls.Label
+    Protected WithEvents lblAgreementID As Global.System.Web.UI.WebControls.Label
 
     '''<summary>
     '''lblCustomerName control.
@@ -76,23 +76,16 @@ Partial Public Class LOIMonitor
     '''</remarks>
     Protected WithEvents lblDealerName As Global.System.Web.UI.WebControls.Label
 
-    '''<summary>
-    '''lblSalesPersonName control.
-    '''</summary>
-    '''<remarks>
-    '''Auto-generated field.
-    '''To modify move field declaration from designer file to code-behind file.
-    '''</remarks>
     Protected WithEvents lblSalesPersonName As Global.System.Web.UI.WebControls.Label
 
     '''<summary>
-    '''lblLOIDate control.
+    '''lblTransactionDate control.
     '''</summary>
     '''<remarks>
     '''Auto-generated field.
     '''To modify move field declaration from designer file to code-behind file.
     '''</remarks>
-    Protected WithEvents lblLOIDate As Global.System.Web.UI.WebControls.Label
+    Protected WithEvents lblTransactionDate As Global.System.Web.UI.WebControls.Label
 
     '''<summary>
     '''lblStatus control.
@@ -104,38 +97,20 @@ Partial Public Class LOIMonitor
     Protected WithEvents lblStatus As Global.System.Web.UI.WebControls.Label
 
     '''<summary>
-    '''lblSpecialRequests control.
+    '''lblTotalAmount control.
     '''</summary>
     '''<remarks>
     '''Auto-generated field.
     '''To modify move field declaration from designer file to code-behind file.
     '''</remarks>
-    Protected WithEvents lblSpecialRequests As Global.System.Web.UI.WebControls.Label
+    Protected WithEvents lblTotalAmount As Global.System.Web.UI.WebControls.Label
 
     '''<summary>
-    '''lblNotes control.
+    '''gvAgreementDetails control.
     '''</summary>
     '''<remarks>
     '''Auto-generated field.
     '''To modify move field declaration from designer file to code-behind file.
     '''</remarks>
-    Protected WithEvents lblNotes As Global.System.Web.UI.WebControls.Label
-
-    '''<summary>
-    '''gvLOIDetails control.
-    '''</summary>
-    '''<remarks>
-    '''Auto-generated field.
-    '''To modify move field declaration from designer file to code-behind file.
-    '''</remarks>
-    Protected WithEvents gvLOIDetails As Global.System.Web.UI.WebControls.GridView
-
-    '''<summary>
-    '''lblDetailTotalAmount control.
-    '''</summary>
-    '''<remarks>
-    '''Auto-generated field.
-    '''To modify move field declaration from designer file to code-behind file.
-    '''</remarks>
-    Protected WithEvents lblDetailTotalAmount As Global.System.Web.UI.WebControls.Label
+    Protected WithEvents gvAgreementDetails As Global.System.Web.UI.WebControls.GridView
 End Class

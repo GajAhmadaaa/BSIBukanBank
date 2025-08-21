@@ -229,5 +229,36 @@ namespace FinalProject.BL.BL
             var createdSalesAgreement = await _salesAgreementDAL.GetByIdWithDetailsAsync(salesAgreement.SalesAgreementId);
             return _mapper.Map<SalesAgreementViewDTO>(createdSalesAgreement);
         }
+        
+        /// <summary>
+        /// Mengubah status SalesAgreement dari unpaid ke paid.
+        /// </summary>
+        /// <param name="agreementId">ID SalesAgreement yang akan diubah statusnya.</param>
+        /// <returns>Tugas yang mewakili operasi asinkron, dengan DTO perjanjian penjualan yang diperbarui.</returns>
+        public async Task<SalesAgreementViewDTO> MarkAsPaidAsync(int agreementId)
+        {
+            // Mendapatkan SalesAgreement dengan detail
+            var salesAgreement = await _salesAgreementDAL.GetByIdWithDetailsAsync(agreementId);
+            if (salesAgreement == null)
+            {
+                throw new Exception("SalesAgreement not found");
+            }
+            
+            // Memastikan SalesAgreement dalam status yang benar
+            if (salesAgreement.Status != "Unpaid")
+            {
+                throw new Exception("SalesAgreement is not in unpaid status");
+            }
+            
+            // Mengubah status menjadi "Paid"
+            salesAgreement.Status = "Paid";
+            
+            // Memperbarui SalesAgreement di database
+            await _salesAgreementDAL.UpdateAsync(salesAgreement);
+            
+            // Mengambil kembali sales agreement dengan detail
+            var updatedSalesAgreement = await _salesAgreementDAL.GetByIdWithDetailsAsync(agreementId);
+            return _mapper.Map<SalesAgreementViewDTO>(updatedSalesAgreement);
+        }
     }
 }

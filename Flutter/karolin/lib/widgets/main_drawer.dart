@@ -64,7 +64,7 @@ class _MainDrawerState extends State<MainDrawer> {
             leading: const Icon(Icons.shopping_cart),
             title: const Text('Cart'),
             onTap: () {
-              context.push('/cart');
+              context.push('/cart/pending');
             },
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           ),

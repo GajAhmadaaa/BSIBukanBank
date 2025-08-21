@@ -26,12 +26,27 @@ class SalesAgreement {
     List<SalesAgreementDetail> details =
         detailsList.map((i) => SalesAgreementDetail.fromJson(i)).toList();
 
+    // Try different possible keys for LOI ID with explicit null checking
+    int? loiid;
+    if (json['Loid'] is int) {
+      loiid = json['Loid'] as int?;
+    } else if (json['LoidId'] is int) {
+      loiid = json['LoidId'] as int?;
+    } else if (json['Loiid'] is int) {
+      loiid = json['Loiid'] as int?;
+    } else if (json['LOIId'] is int) {
+      loiid = json['LOIId'] as int?;
+    } else {
+      // If none of the above, explicitly set to null
+      loiid = null;
+    }
+
     return SalesAgreement(
       id: json['Id'],
       dealerId: json['DealerId'],
       customerId: json['CustomerId'],
       salesPersonId: json['SalesPersonId'],
-      loiid: json['Loid'],
+      loiid: loiid,
       transactionDate: DateTime.parse(json['TransactionDate']),
       totalAmount: (json['TotalAmount'] as num?)?.toDouble(),
       status: json['Status'],

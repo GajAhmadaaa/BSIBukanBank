@@ -34,9 +34,9 @@
             <div class="col-md-4 mb-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title"><i class="fas fa-chart-bar text-info me-2"></i>Reporting</h5>
-                        <p class="card-text">Access detailed reports on inventory movements and sales performance.</p>
-                        <a href="#" class="btn btn-outline-info">View Reports</a>
+                        <h5 class="card-title"><i class="fas fa-file-contract text-warning me-2"></i>Sales Agreements</h5>
+                        <p class="card-text">Monitor and manage sales agreements with our comprehensive tracking system.</p>
+                        <a href="AgreementMonitor.aspx" class="btn btn-outline-warning">View Agreements</a>
                     </div>
                 </div>
             </div>
@@ -54,6 +54,7 @@
                             <li>Real-time inventory tracking across multiple dealerships</li>
                             <li>Streamlined transfer processes between locations</li>
                             <li>Automated Letter of Intent management</li>
+                            <li>Sales agreement monitoring and tracking</li>
                             <li>Comprehensive reporting and analytics</li>
                             <li>Secure and scalable cloud-based infrastructure</li>
                         </ul>

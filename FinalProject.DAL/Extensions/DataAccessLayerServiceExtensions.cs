@@ -42,6 +42,7 @@ public static class DataAccessLayerServiceExtensions
         services.AddScoped<ISalesPerson, SalesPersonDAL>();
         services.AddScoped<ICustomerNotification, CustomerNotificationDAL>();
         services.AddScoped<IUsman, UsmanDAL>();
+        services.AddScoped<IPaymentDAL, PaymentDAL>();
         
         return services;
     }

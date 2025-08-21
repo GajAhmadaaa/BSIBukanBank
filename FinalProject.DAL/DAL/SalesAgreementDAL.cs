@@ -184,7 +184,7 @@ namespace FinalProject.DAL.DAL
                 return await _dbSet
                     .Include(a => a.SalesAgreementDetails)
                         .ThenInclude(d => d.Car)
-                    .Where(a => a.CustomerId == customerId && a.Status == "Paid")
+                    .Where(a => a.CustomerId == customerId && (a.Status == "Paid" || a.Status == "Completed"))
                     .ToListAsync();
             }
             catch (Exception ex)

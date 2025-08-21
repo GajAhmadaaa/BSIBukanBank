@@ -157,7 +157,7 @@ erDiagram
 | LOIDate          | DATETIME       | Tanggal LOI dibuat (Wajib diisi)         |
 | PaymentMethod    | VARCHAR(20)    | Metode pembayaran yang disepakati       |
 | Note             | VARCHAR(200)   | Catatan umum untuk LOI                   |
-| Status           | VARCHAR(20)    | Status LOI (Draft, Submitted, PendingStock, ReadyForAgreement, Converted, Cancelled) |
+| Status           | VARCHAR(20)    | Status LOI (Pending, ReadyForAgreement, Converted, Cancelled) |
 
 ### 2. Tabel: LetterOfIntentDetail
 | Nama Kolom      | Tipe Data      | Keterangan                               |

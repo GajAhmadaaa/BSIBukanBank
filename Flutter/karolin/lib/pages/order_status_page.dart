@@ -52,6 +52,108 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
     }
   }
 
+  Future<void> _convertLOIToAgreement(int loiId) async {
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const AlertDialog(
+            content: Row(
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Converting to Agreement..."),
+              ],
+            ),
+          );
+        },
+      );
+
+      // Call the service to convert LOI to Agreement
+      final SalesAgreement agreement = await _orderService.convertLOIToAgreement(loiId);
+      
+      // Hide loading indicator
+      Navigator.of(context).pop();
+      
+      // Show success message and navigate to pending orders page
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Successfully converted to agreement')),
+        );
+
+        // Navigate to unpaid orders page
+        context.go('/cart/unpaid');
+      }
+    } catch (error) {
+      // Hide loading indicator
+      Navigator.of(context).pop();
+      
+      // Show error message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to convert to agreement: $error')),
+        );
+      }
+    }
+  }
+  
+  Future<void> _markAgreementAsPaid(int agreementId) async {
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const AlertDialog(
+            content: Row(
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Processing payment..."),
+              ],
+            ),
+          );
+        },
+      );
+
+      // Get the current agreement data first
+      final SalesAgreement currentAgreement = await _orderService.getSalesAgreementById(agreementId);
+      
+      // Process payment first
+      await _orderService.processPayment(agreementId, currentAgreement.totalAmount ?? 0);
+      
+      // Then mark agreement as paid
+      final SalesAgreement updatedAgreement = await _orderService.markAgreementAsPaid(agreementId);
+      
+      // Hide loading indicator
+      Navigator.of(context).pop();
+      
+      // Refresh the page to show updated status
+      setState(() {
+        _order = Future.value(updatedAgreement);
+      });
+      
+      // Show success message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Payment processed successfully')),
+        );
+      }
+    } catch (error) {
+      // Hide loading indicator
+      Navigator.of(context).pop();
+      
+      // Show error message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to process payment: $error')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,6 +244,17 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
                     currencyFormat.format(totalAmount),
                     isBold: true,
                   ),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: order.status.toLowerCase() == 'readyforagreement' 
+                          ? () {
+                              _convertLOIToAgreement(order.id);
+                            }
+                          : null,
+                      child: const Text('Proceed to Agreement'),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -180,6 +293,7 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
               );
             },
           ),
+          const SizedBox(height: 24),
         ],
       ),
     );
@@ -187,12 +301,12 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
 
   Widget _buildSAView(SalesAgreement agreement) {
     final currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
-    return SingleChildScrollView( // Added SingleChildScrollView
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Card( // Added Card for main details
+          Card(
             elevation: 4,
             margin: const EdgeInsets.symmetric(vertical: 8.0),
             child: Padding(
@@ -205,9 +319,29 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  _buildDetailRow('Status', '', customWidget: _buildStatusChip(agreement.status ?? 'Unknown')), // Modified
+                  _buildDetailRow('Status', '', customWidget: _buildStatusChip(agreement.status ?? 'Unknown')),
                   _buildDetailRow('Date', _dateFormat.format(agreement.transactionDate)),
-                  _buildDetailRow('Total Amount', currencyFormat.format(agreement.totalAmount ?? 0), isBold: true),
+                  _buildDetailRow('Dealer ID', agreement.dealerId.toString()),
+                  _buildDetailRow('Customer ID', agreement.customerId.toString()),
+                  _buildDetailRow('Sales Person ID', agreement.salesPersonId.toString()),
+                  _buildDetailRow('LOI ID', agreement.loiid?.toString() ?? '0'),
+                  const Divider(height: 32),
+                  _buildDetailRow(
+                    'Total Amount',
+                    currencyFormat.format(agreement.totalAmount ?? 0),
+                    isBold: true,
+                  ),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: agreement.status?.toLowerCase() == 'unpaid' 
+                          ? () {
+                              _markAgreementAsPaid(agreement.id);
+                            }
+                          : null,
+                      child: const Text('Proceed Payment'),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -219,22 +353,25 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
           ),
           const SizedBox(height: 8),
           ListView.builder(
-            shrinkWrap: true, // Added shrinkWrap
-            physics: const NeverScrollableScrollPhysics(), // Added NeverScrollableScrollPhysics
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: agreement.details.length,
             itemBuilder: (context, index) {
               final detail = agreement.details[index];
-              final itemTotal = detail.agreedPrice - (detail.discount ?? 0); // Added itemTotal calculation
+              final itemTotal = detail.agreedPrice - (detail.discount ?? 0);
               return Card(
-                margin: const EdgeInsets.symmetric(vertical: 4.0), // Changed margin
+                margin: const EdgeInsets.symmetric(vertical: 4.0),
                 child: ListTile(
                   title: Text(detail.carName,
                       style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Column( // Changed subtitle to Column
+                  subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Price: ${currencyFormat.format(detail.agreedPrice)}'),
-                      Text('Discount: ${currencyFormat.format(detail.discount ?? 0)}'),
+                      if (detail.discount != null && detail.discount! > 0)
+                        Text('Discount: ${currencyFormat.format(detail.discount ?? 0)}'),
+                      if (detail.note != null)
+                        Text('Note: ${detail.note}'),
                     ],
                   ),
                   trailing: Text(
@@ -246,6 +383,7 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
               );
             },
           ),
+          const SizedBox(height: 24),
         ],
       ),
     );
@@ -281,7 +419,7 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
       label: Text(status, style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
       backgroundColor: backgroundColor,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      labelPadding: EdgeInsets.zero, // Remove default label padding
+      labelPadding: EdgeInsets.zero,
     );
   }
 
@@ -293,7 +431,7 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text('$label:', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600])),
-          customWidget ?? Text( // Use customWidget if provided, otherwise use Text
+          customWidget ?? Text(
             value,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 fontWeight: isBold ? FontWeight.bold : FontWeight.normal,

@@ -39,10 +39,13 @@ namespace FinalProject.BL.Profiles
                 .ForMember(dest => dest.Details, opt => opt.MapFrom(src => src.LetterOfIntentDetails))
                 .ReverseMap()
                 .ForMember(dest => dest.Loiid, opt => opt.MapFrom(src => src.Id));
-            CreateMap<LetterOfIntent, LetterOfIntentInsertDTO>().ReverseMap();
-            CreateMap<LetterOfIntent, LetterOfIntentUpdateDTO>().ReverseMap();
+            CreateMap<LetterOfIntent, LetterOfIntentInsertDTO>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
+            CreateMap<LetterOfIntentInsertDTO, LetterOfIntent>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
             CreateMap<LetterOfIntentWithDetailsInsertDTO, LetterOfIntent>()
-                .ForMember(dest => dest.LetterOfIntentDetails, opt => opt.Ignore());
+                .ForMember(dest => dest.LetterOfIntentDetails, opt => opt.Ignore())
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
             
             // Mapping untuk LetterOfIntentDetail
             CreateMap<LetterOfIntentDetail, LetterOfIntentDetailViewDTO>()
@@ -72,6 +75,9 @@ namespace FinalProject.BL.Profiles
             CreateMap<SalesPerson, SalesPersonViewDTO>().ReverseMap();
             CreateMap<SalesPerson, SalesPersonInsertDTO>().ReverseMap();
             CreateMap<SalesPerson, SalesPersonUpdateDTO>().ReverseMap();
+
+            // Mapping untuk PaymentHistory
+            CreateMap<PaymentHistory, PaymentInsertDTO>().ReverseMap();
         }
     }
 }

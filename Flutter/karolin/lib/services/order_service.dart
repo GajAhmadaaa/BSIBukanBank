@@ -15,6 +15,30 @@ class OrderService {
     return SalesAgreement.fromJson(data);
   }
 
+  // Method to convert LOI to Sales Agreement
+  Future<SalesAgreement> convertLOIToAgreement(int loiId) async {
+    final data = await _apiService.post('SalesAgreement/convert-from-loi/$loiId', {});
+    return SalesAgreement.fromJson(data);
+  }
+  
+  // Method to mark Sales Agreement as paid
+  Future<SalesAgreement> markAgreementAsPaid(int agreementId) async {
+    final data = await _apiService.put('SalesAgreement/$agreementId/mark-as-paid', {});
+    return SalesAgreement.fromJson(data);
+  }
+  
+  // Method to process payment
+  Future<void> processPayment(int agreementId, double amount) async {
+    final paymentData = {
+      'SalesAgreementID': agreementId,
+      'PaymentAmount': amount,
+      'PaymentDate': DateTime.now().toIso8601String(),
+      'PaymentType': 'FullPayment'
+    };
+    
+    await _apiService.post('Payment', paymentData);
+  }
+
   // Methods for SalesAgreement (Unpaid/Paid orders)
   Future<List<SalesAgreement>> getUnpaidAgreements(int customerId) async {
     final data = await _apiService.get('SalesAgreement/customer/$customerId/unpaid');

@@ -12,4 +12,5 @@ public class LetterOfIntentInsertDTO
     public DateTime Loidate { get; set; }
     public string? PaymentMethod { get; set; }
     public string? Note { get; set; }
+    public string? Status { get; set; }
 }

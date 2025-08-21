@@ -39,6 +39,13 @@ namespace FinalProject.BL.BL
             // Misalnya, memastikan tanggal tidak di masa depan terlalu jauh, dll.
             
             var newLetterOfIntent = _mapper.Map<LetterOfIntent>(letterOfIntent);
+            
+            // Set default status to "Pending" if not provided
+            if (string.IsNullOrEmpty(newLetterOfIntent.Status))
+            {
+                newLetterOfIntent.Status = "Pending";
+            }
+            
             await _letterOfIntentDAL.CreateAsync(newLetterOfIntent);
             return _mapper.Map<LetterOfIntentViewDTO>(newLetterOfIntent);
         }
@@ -53,6 +60,12 @@ namespace FinalProject.BL.BL
             // Validasi dasar bisa ditambahkan di sini jika diperlukan
             
             var newLetterOfIntent = _mapper.Map<LetterOfIntent>(letterOfIntentWithDetails);
+            
+            // Set default status to "Pending" if not provided
+            if (string.IsNullOrEmpty(newLetterOfIntent.Status))
+            {
+                newLetterOfIntent.Status = "Pending";
+            }
             
             // Membuat letter of intent terlebih dahulu
             await _letterOfIntentDAL.CreateAsync(newLetterOfIntent);
@@ -115,13 +128,13 @@ namespace FinalProject.BL.BL
             // Validasi dasar bisa ditambahkan di sini jika diperlukan
             
             var existingLetterOfIntent = await _letterOfIntentDAL.GetByIdAsync(id);
-            if (existingLetterOfIntent != null)
+            if (existingLetterOfIntent == null)
             {
-                _mapper.Map(letterOfIntent, existingLetterOfIntent);
-                await _letterOfIntentDAL.UpdateAsync(existingLetterOfIntent);
-                return _mapper.Map<LetterOfIntentViewDTO>(existingLetterOfIntent);
+                throw new KeyNotFoundException($"LetterOfIntent dengan id {id} tidak ditemukan.");
             }
-            return null;
+            _mapper.Map(letterOfIntent, existingLetterOfIntent);
+            await _letterOfIntentDAL.UpdateAsync(existingLetterOfIntent);
+            return _mapper.Map<LetterOfIntentViewDTO>(existingLetterOfIntent);
         }
         
         /// <summary>

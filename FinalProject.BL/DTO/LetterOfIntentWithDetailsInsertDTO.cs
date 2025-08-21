@@ -14,6 +14,7 @@ public class LetterOfIntentWithDetailsInsertDTO
     public DateTime Loidate { get; set; }
     public string? PaymentMethod { get; set; }
     public string? Note { get; set; }
+    public string? Status { get; set; }
     
     // LetterOfIntentDetails collection
     public IEnumerable<LetterOfIntentDetailInsertDTO> Details { get; set; } = new List<LetterOfIntentDetailInsertDTO>();

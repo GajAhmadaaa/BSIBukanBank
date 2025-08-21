@@ -6,7 +6,7 @@
 <head runat="server">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%: Page.Title %> - BSI Bukan Bank</title>
+    <title><%: Page.Title %> - karolin</title>
     
     <asp:PlaceHolder runat="server">
         <%: Scripts.Render("~/bundles/modernizr") %>
@@ -41,7 +41,7 @@
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
             <div class="container">
                 <a class="navbar-brand fw-bold" runat="server" href="~/">
-                    <i class="fas fa-car me-2"></i>BSI Bukan Bank
+                    <i class="fas fa-car me-2"></i>karolin
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
                     title="Toggle navigation" aria-controls="navbarSupportedContent"
@@ -54,16 +54,16 @@
                             <a class="nav-link" runat="server" href="~/">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" runat="server" href="~/About">About</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" runat="server" href="~/Contact">Contact</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" runat="server" href="~/LOIMonitor">LOI Monitor</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" runat="server" href="~/AgreementMonitor">Agreement Monitor</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" runat="server" href="~/TransferInventory">Transfer Inventory</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" runat="server" href="~/DealerInventory">Dealer Inventory</a>
                         </li>
                     </ul>
                 </div>
@@ -77,7 +77,7 @@
                 </asp:ContentPlaceHolder>
             </div>
             <footer class="text-center text-muted mt-4">
-                <p>&copy; <%: DateTime.Now.Year %> - BSI Bukan Bank Application</p>
+                <p>&copy; <%: DateTime.Now.Year %> - karolin Application</p>
             </footer>
         </div>
         

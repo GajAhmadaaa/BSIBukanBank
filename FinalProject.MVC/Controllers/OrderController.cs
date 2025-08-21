@@ -12,17 +12,20 @@ namespace FinalProject.MVC.Controllers
     public class OrderController : Controller
     {
         private readonly ILetterOfIntentBL _letterOfIntentBL;
+        private readonly ISalesAgreementBL _salesAgreementBL;
         private readonly IDealerInventoryBL _dealerInventoryBL;
         private readonly IDealerBL _dealerBL;
-        private readonly ICarBL _carBL; // Add ICarBL to get car details
+        private readonly ICarBL _carBL;
 
         public OrderController(
             ILetterOfIntentBL letterOfIntentBL,
+            ISalesAgreementBL salesAgreementBL,
             IDealerInventoryBL dealerInventoryBL,
             IDealerBL dealerBL,
             ICarBL carBL)
         {
             _letterOfIntentBL = letterOfIntentBL;
+            _salesAgreementBL = salesAgreementBL;
             _dealerInventoryBL = dealerInventoryBL;
             _dealerBL = dealerBL;
             _carBL = carBL;
@@ -38,9 +41,23 @@ namespace FinalProject.MVC.Controllers
                 return NotFound("Customer not found.");
             }
             
-            var orders = await _letterOfIntentBL.GetAllAsync();
-            var customerOrders = orders.Where(o => o.CustomerId == customerId).OrderByDescending(o => o.Loidate);
-            return View(customerOrders);
+            // Get LOI with status "Pending" and "ReadyForAgreement"
+            var pendingLois = await _letterOfIntentBL.GetPendingByCustomerIdAsync(customerId);
+            
+            // Get Sales Agreements with status "Unpaid"
+            var unpaidAgreements = await _salesAgreementBL.GetUnpaidByCustomerIdAsync(customerId);
+            
+            // Get Sales Agreements with status "Paid" and "Completed"
+            var paidAgreements = await _salesAgreementBL.GetPaidByCustomerIdAsync(customerId);
+            
+            var model = new OrderIndexViewModel
+            {
+                PendingLois = pendingLois.ToList(),
+                UnpaidAgreements = unpaidAgreements.ToList(),
+                PaidAgreements = paidAgreements.ToList()
+            };
+            
+            return View(model);
         }
 
         // GET: Order/Create
@@ -120,6 +137,7 @@ namespace FinalProject.MVC.Controllers
                         Loidate = DateTime.Now,
                         PaymentMethod = "Cash", // Default
                         Note = model.Note,
+                        Status = "Pending", // Set default status
                         Details = loiDetails
                     };
 
@@ -159,6 +177,26 @@ namespace FinalProject.MVC.Controllers
             }
 
             return View(loi);
+        }
+        
+        // GET: Order/AgreementDetails/5
+        public async Task<IActionResult> AgreementDetails(int id)
+        {
+            var customerIdClaim = User.FindFirst("CustomerId")?.Value;
+            
+            if (string.IsNullOrEmpty(customerIdClaim) || !int.TryParse(customerIdClaim, out int customerId))
+            {
+                return NotFound("Customer not found.");
+            }
+
+            var agreement = await _salesAgreementBL.GetByIdAsync(id);
+            
+            if (agreement == null || agreement.CustomerId != customerId)
+            {
+                return NotFound();
+            }
+
+            return View(agreement);
         }
 
         private async Task PopulateDropdowns()

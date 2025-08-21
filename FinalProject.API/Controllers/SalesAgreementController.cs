@@ -66,5 +66,20 @@ namespace FinalProject.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        
+        // Endpoint untuk mengubah status SalesAgreement dari unpaid ke paid
+        [HttpPut("{id}/mark-as-paid")]
+        public async Task<ActionResult<SalesAgreementViewDTO>> MarkAsPaid(int id)
+        {
+            try
+            {
+                var salesAgreement = await _salesAgreementBL.MarkAsPaidAsync(id);
+                return Ok(salesAgreement);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

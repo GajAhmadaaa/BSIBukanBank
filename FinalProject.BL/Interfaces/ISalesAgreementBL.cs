@@ -18,5 +18,8 @@ namespace FinalProject.BL.Interfaces
         Task<IEnumerable<SalesAgreementViewDTO>> GetUnpaidByCustomerIdAsync(int customerId);
         Task<IEnumerable<SalesAgreementViewDTO>> GetPaidByCustomerIdAsync(int customerId);
         Task<SalesAgreementViewDTO> ConvertFromLOIAsync(int loiId);
+        
+        // Method untuk mengubah status agreement dari unpaid ke paid
+        Task<SalesAgreementViewDTO> MarkAsPaidAsync(int agreementId);
     }
 }

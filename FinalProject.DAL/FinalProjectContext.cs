@@ -445,7 +445,7 @@ public partial class FinalProjectContext : IdentityDbContext
                 .HasColumnType("varchar(20)")
                 .HasColumnName("Status");
             // Jika Anda ingin menambahkan constraint CHECK:
-            // entity.HasCheckConstraint("CK_LetterOfIntent_Status", "[Status] IN ('Draft', 'Submitted', 'PendingStock', 'ReadyForAgreement', 'Converted', 'Cancelled')");
+            // entity.HasCheckConstraint("CK_LetterOfIntent_Status", "[Status] IN ('Pending', 'ReadyForAgreement', 'Converted', 'Cancelled')");
 
             entity.HasOne(d => d.ConsultHistory).WithMany(p => p.LetterOfIntents)
                 .HasForeignKey(d => d.ConsultHistoryId)

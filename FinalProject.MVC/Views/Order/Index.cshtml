@@ -1,4 +1,4 @@
-@model IEnumerable<FinalProject.BL.DTO.LetterOfIntentViewDTO>
+@model FinalProject.MVC.ViewModels.OrderIndexViewModel
 
 @{
     ViewData["Title"] = "My Orders";
@@ -20,39 +20,164 @@
         <a asp-action="Create" class="btn btn-primary">Create New Order</a>
     </div>
 
-    @if (Model.Any())
-    {
-        <div class="row">
-            @foreach (var order in Model)
+    <ul class="nav nav-tabs" id="orderTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab" aria-controls="pending" aria-selected="true">Pending (@Model.PendingLois.Count())</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="unpaid-tab" data-bs-toggle="tab" data-bs-target="#unpaid" type="button" role="tab" aria-controls="unpaid" aria-selected="false">Unpaid (@Model.UnpaidAgreements.Count())</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="paid-tab" data-bs-toggle="tab" data-bs-target="#paid" type="button" role="tab" aria-controls="paid" aria-selected="false">Paid (@Model.PaidAgreements.Count())</button>
+        </li>
+    </ul>
+    
+    <div class="tab-content" id="orderTabsContent">
+        <!-- Pending LOIs Tab -->
+        <div class="tab-pane fade show active" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+            @if (Model.PendingLois.Any())
             {
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Order #@order.Id</h5>
+                <div class="row mt-3">
+                    @foreach (var order in Model.PendingLois)
+                    {
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Order #@order.Id</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        <strong>Date:</strong> @order.Loidate.ToString("dd MMM yyyy")<br>
+                                        <strong>Items:</strong> @order.Details.Count()<br>
+                                        <strong>Status:</strong> 
+                                        @{
+                                            string statusClass = order.Status?.ToLower() switch
+                                            {
+                                                "pending" => "bg-warning",
+                                                "readyforagreement" => "bg-primary",
+                                                "unpaid" => "bg-danger",
+                                                "paid" => "bg-success",
+                                                "converted" => "bg-info",
+                                                "completed" => "bg-success-subtle text-success", // Light green for completed
+                                                _ => "bg-secondary"
+                                            };
+                                        }
+                                        <span class="badge @statusClass">@(order.Status ?? "Unknown")</span>
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-primary">View Details</a>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <p class="card-text">
-                                <strong>Date:</strong> @order.Loidate.ToString("dd MMM yyyy")<br>
-                                @* Note: Dealer, Customer, and other navigation properties are not available in DTOs *@
-                                <strong>Status:</strong> 
-                                @* Note: Bookings and other related entities are not available in DTOs *@
-                                <span class="badge bg-secondary">Information Limited</span>
-                            </p>
-                            @* Note: LetterOfIntentDetails and Car information are not available in DTOs *@
-                        </div>
-                        <div class="card-footer">
-                            <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-primary">View Details</a>
-                        </div>
-                    </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info mt-3">
+                    <h4 class="alert-heading">No pending orders</h4>
+                    <p>You don't have any pending orders at the moment.</p>
                 </div>
             }
         </div>
-    }
-    else
-    {
-        <div class="alert alert-info">
-            <h4 class="alert-heading">No orders found</h4>
-            <p>You haven't placed any orders yet. Click the "Create New Order" button to get started.</p>
+        
+        <!-- Unpaid Agreements Tab -->
+        <div class="tab-pane fade" id="unpaid" role="tabpanel" aria-labelledby="unpaid-tab">
+            @if (Model.UnpaidAgreements.Any())
+            {
+                <div class="row mt-3">
+                    @foreach (var agreement in Model.UnpaidAgreements)
+                    {
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Agreement #@agreement.Id</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        <strong>Date:</strong> @agreement.TransactionDate.ToString("dd MMM yyyy")<br>
+                                        <strong>Items:</strong> @agreement.Details.Count()<br>
+                                        <strong>Status:</strong> 
+                                        @{
+                                            string statusClass = agreement.Status?.ToLower() switch
+                                            {
+                                                "pending" => "bg-warning",
+                                                "readyforagreement" => "bg-primary",
+                                                "unpaid" => "bg-danger",
+                                                "paid" => "bg-success",
+                                                "converted" => "bg-info",
+                                                "completed" => "bg-success-subtle text-success", // Light green for completed
+                                                _ => "bg-secondary"
+                                            };
+                                        }
+                                        <span class="badge @statusClass">@(agreement.Status ?? "Unknown")</span>
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <a asp-action="AgreementDetails" asp-route-id="@agreement.Id" class="btn btn-primary">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info mt-3">
+                    <h4 class="alert-heading">No unpaid agreements</h4>
+                    <p>You don't have any unpaid agreements at the moment.</p>
+                </div>
+            }
         </div>
-    }
+        
+        <!-- Paid Agreements Tab -->
+        <div class="tab-pane fade" id="paid" role="tabpanel" aria-labelledby="paid-tab">
+            @if (Model.PaidAgreements.Any())
+            {
+                <div class="row mt-3">
+                    @foreach (var agreement in Model.PaidAgreements)
+                    {
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Agreement #@agreement.Id</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        <strong>Date:</strong> @agreement.TransactionDate.ToString("dd MMM yyyy")<br>
+                                        <strong>Items:</strong> @agreement.Details.Count()<br>
+                                        <strong>Status:</strong> 
+                                        @{
+                                            string statusClass = agreement.Status?.ToLower() switch
+                                            {
+                                                "pending" => "bg-warning",
+                                                "readyforagreement" => "bg-primary",
+                                                "unpaid" => "bg-danger",
+                                                "paid" => "bg-success",
+                                                "converted" => "bg-info",
+                                                "completed" => "bg-success-subtle text-success", // Light green for completed
+                                                _ => "bg-secondary"
+                                            };
+                                        }
+                                        <span class="badge @statusClass">@(agreement.Status ?? "Unknown")</span>
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <a asp-action="AgreementDetails" asp-route-id="@agreement.Id" class="btn btn-primary">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info mt-3">
+                    <h4 class="alert-heading">No paid agreements</h4>
+                    <p>You don't have any paid agreements at the moment.</p>
+                </div>
+            }
+        </div>
+    </div>
 </div>
