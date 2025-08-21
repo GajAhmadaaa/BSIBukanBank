@@ -26,7 +26,7 @@ public partial class LetterOfIntent
     public string Note { get; set; }
 
     // Properti Status untuk melacak alur LOI
-    // Sesuai dengan dokumen skenario: Draft, Submitted, PendingStock, ReadyForAgreement, Converted, Cancelled
+    // Sesuai dengan dokumen skenario: Pending, ReadyForAgreement, Converted, Cancelled
     public string Status { get; set; }
 
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();

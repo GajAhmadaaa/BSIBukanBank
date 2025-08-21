@@ -203,4 +203,17 @@ Public Class TransferInventory
 
         BindTransferHistory()
     End Sub
+    
+    ' New refresh button handler
+    Protected Sub btnRefresh_Click(sender As Object, e As EventArgs)
+        BindDealers()
+        BindCars()
+        BindTransferHistory()
+    End Sub
+    
+    ' Paging handler for GridView
+    Protected Sub gvTransferHistory_PageIndexChanging(sender As Object, e As GridViewPageEventArgs)
+        gvTransferHistory.PageIndex = e.NewPageIndex
+        BindTransferHistory()
+    End Sub
 End Class

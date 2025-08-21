@@ -96,7 +96,7 @@ namespace FinalProject.BL.BL
         /// <returns>Tugas yang mewakili operasi asinkron, dengan DTO surat niat, atau null jika tidak ditemukan.</returns>
         public async Task<LetterOfIntentViewDTO?> GetByIdAsync(int id)
         {
-            var letterOfIntent = await _letterOfIntentDAL.GetByIdAsync(id);
+            var letterOfIntent = await _letterOfIntentDAL.GetByIdWithDetailsAsync(id);
             if (letterOfIntent == null)
             {
                 return null;

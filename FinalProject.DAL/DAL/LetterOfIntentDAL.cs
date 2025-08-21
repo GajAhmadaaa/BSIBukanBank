@@ -172,7 +172,7 @@ namespace FinalProject.DAL.DAL
                 return await _dbSet
                     .Include(l => l.LetterOfIntentDetails)
                         .ThenInclude(d => d.Car)
-                    .Where(l => l.CustomerId == customerId && l.Status == "Pending")
+                    .Where(l => l.CustomerId == customerId && (l.Status == "Pending" || l.Status == "ReadyForAgreement")).OrderByDescending(l => l.Status == "ReadyForAgreement")
                     .ToListAsync();
             }
             catch (Exception ex)

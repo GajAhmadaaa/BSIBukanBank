@@ -5,9 +5,14 @@ import 'package:karolin/services/api_service.dart';
 class OrderService {
   final ApiService _apiService = ApiService();
 
-  Future<LetterOfIntent> getOrderById(int orderId) async {
+  Future<LetterOfIntent> getLOIById(int orderId) async { // Renamed
     final data = await _apiService.get('LetterOfIntent/$orderId');
     return LetterOfIntent.fromJson(data);
+  }
+
+  Future<SalesAgreement> getSalesAgreementById(int agreementId) async { // New method
+    final data = await _apiService.get('SalesAgreement/$agreementId');
+    return SalesAgreement.fromJson(data);
   }
 
   // Methods for SalesAgreement (Unpaid/Paid orders)

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:karolin/models/sales_agreement.dart';
 import 'package:karolin/services/order_service.dart';
 import 'package:karolin/services/auth_service.dart';
+import 'package:karolin/widgets/status_chip.dart';
 
 class UnpaidPage extends StatefulWidget {
   const UnpaidPage({super.key});
@@ -102,10 +103,21 @@ class _UnpaidPageState extends State<UnpaidPage> {
                 margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                 child: ListTile(
                   title: Text('Agreement ID: ${agreement.id}'),
-                  subtitle: Text('Status: ${agreement.status}\nDate: ${agreement.transactionDate.toLocal()}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Text('Status: '),
+                          buildStatusChip(agreement.status ?? 'Unknown'),
+                        ],
+                      ),
+                      Text('Date: ${agreement.transactionDate.toLocal()}'),
+                    ],
+                  ),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
-                    context.push('/order/${agreement.id}');
+                    context.push('/order/sa/${agreement.id}');
                   },
                 ),
               );

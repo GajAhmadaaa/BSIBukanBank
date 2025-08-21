@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:karolin/models/order.dart';
 import 'package:karolin/services/order_service.dart';
 import 'package:karolin/services/auth_service.dart';
+import 'package:karolin/widgets/status_chip.dart';
 
 class PendingPage extends StatefulWidget {
   const PendingPage({super.key});
@@ -102,10 +103,21 @@ class _PendingPageState extends State<PendingPage> {
                 margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                 child: ListTile(
                   title: Text('Order ID: ${order.id}'),
-                  subtitle: Text('Status: ${order.status}\nDate: ${order.loidate.toLocal()}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Text('Status: '),
+                          buildStatusChip(order.status),
+                        ],
+                      ),
+                      Text('Date: ${order.loidate.toLocal()}'),
+                    ],
+                  ),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
-                    context.push('/order/${order.id}');
+                    context.push('/order/loi/${order.id}');
                   },
                 ),
               );

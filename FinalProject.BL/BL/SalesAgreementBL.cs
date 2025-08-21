@@ -98,7 +98,7 @@ namespace FinalProject.BL.BL
         /// <returns>Tugas yang mewakili operasi asinkron, dengan DTO perjanjian penjualan, atau null jika tidak ditemukan.</returns>
         public async Task<SalesAgreementViewDTO?> GetByIdAsync(int id)
         {
-            var salesAgreement = await _salesAgreementDAL.GetByIdAsync(id);
+            var salesAgreement = await _salesAgreementDAL.GetByIdWithDetailsAsync(id);
             if (salesAgreement == null)
             {
                 return null;

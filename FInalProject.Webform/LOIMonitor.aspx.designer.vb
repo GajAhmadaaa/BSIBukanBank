@@ -23,6 +23,15 @@ Partial Public Class LOIMonitor
     Protected WithEvents BodyContent As Global.System.Web.UI.WebControls.Content
 
     '''<summary>
+    '''btnRefresh control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents btnRefresh As Global.System.Web.UI.WebControls.Button
+
+    '''<summary>
     '''gvLOIs control.
     '''</summary>
     '''<remarks>
@@ -30,4 +39,121 @@ Partial Public Class LOIMonitor
     '''To modify move field declaration from designer file to code-behind file.
     '''</remarks>
     Protected WithEvents gvLOIs As Global.System.Web.UI.WebControls.GridView
+
+    '''<summary>
+    '''litMessage control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents litMessage As Global.System.Web.UI.WebControls.Literal
+
+    '''<summary>
+    '''lblLOIID control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents lblLOIID As Global.System.Web.UI.WebControls.Label
+
+    '''<summary>
+    '''lblCustomerName control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents lblCustomerName As Global.System.Web.UI.WebControls.Label
+
+    '''<summary>
+    '''lblDealerName control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents lblDealerName As Global.System.Web.UI.WebControls.Label
+
+    '''<summary>
+    '''lblLOIDate control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents lblLOIDate As Global.System.Web.UI.WebControls.Label
+
+    '''<summary>
+    '''lblStatus control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents lblStatus As Global.System.Web.UI.WebControls.Label
+
+    '''<summary>
+    '''lblCarModel control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents lblCarModel As Global.System.Web.UI.WebControls.Label
+
+    '''<summary>
+    '''lblQuantity control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents lblQuantity As Global.System.Web.UI.WebControls.Label
+
+    '''<summary>
+    '''lblAgreedPrice control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents lblAgreedPrice As Global.System.Web.UI.WebControls.Label
+
+    '''<summary>
+    '''lblDiscount control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents lblDiscount As Global.System.Web.UI.WebControls.Label
+
+    '''<summary>
+    '''lblTotalAmount control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents lblTotalAmount As Global.System.Web.UI.WebControls.Label
+
+    '''<summary>
+    '''lblSpecialRequests control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents lblSpecialRequests As Global.System.Web.UI.WebControls.Label
+
+    '''<summary>
+    '''lblNotes control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents lblNotes As Global.System.Web.UI.WebControls.Label
 End Class

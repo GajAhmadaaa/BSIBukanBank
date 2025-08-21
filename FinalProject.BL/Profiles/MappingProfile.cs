@@ -36,6 +36,7 @@ namespace FinalProject.BL.Profiles
             // Mapping untuk LetterOfIntent
             CreateMap<LetterOfIntent, LetterOfIntentViewDTO>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Loiid))
+                .ForMember(dest => dest.Details, opt => opt.MapFrom(src => src.LetterOfIntentDetails))
                 .ReverseMap()
                 .ForMember(dest => dest.Loiid, opt => opt.MapFrom(src => src.Id));
             CreateMap<LetterOfIntent, LetterOfIntentInsertDTO>().ReverseMap();
@@ -51,7 +52,11 @@ namespace FinalProject.BL.Profiles
                 .ForMember(dest => dest.AgreedPrice, opt => opt.MapFrom(src => src.Price));
             
             // Mapping untuk SalesAgreement
-            CreateMap<SalesAgreement, SalesAgreementViewDTO>().ReverseMap();
+            CreateMap<SalesAgreement, SalesAgreementViewDTO>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.SalesAgreementId))
+                .ForMember(dest => dest.Details, opt => opt.MapFrom(src => src.SalesAgreementDetails))
+                .ReverseMap()
+                .ForMember(dest => dest.SalesAgreementId, opt => opt.MapFrom(src => src.Id));
             CreateMap<SalesAgreement, SalesAgreementInsertDTO>().ReverseMap();
             CreateMap<SalesAgreement, SalesAgreementUpdateDTO>().ReverseMap();
             CreateMap<SalesAgreementWithDetailsInsertDTO, SalesAgreement>()

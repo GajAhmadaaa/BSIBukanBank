@@ -51,10 +51,17 @@ final GoRouter appRouter = GoRouter(
       },
     ),
     GoRoute(
-      path: '/order/:id',
+      path: '/order/loi/:id',
       builder: (BuildContext context, GoRouterState state) {
-        final id = int.parse(state.pathParameters['id']!);
-        return OrderStatusPage(orderId: id);
+        final id = int.parse(state.pathParameters['id']!); 
+        return OrderStatusPage(orderId: id, orderType: 'loi');
+      },
+    ),
+    GoRoute(
+      path: '/order/sa/:id',
+      builder: (BuildContext context, GoRouterState state) {
+        final id = int.parse(state.pathParameters['id']!); 
+        return OrderStatusPage(orderId: id, orderType: 'sa');
       },
     ),
     ShellRoute(
