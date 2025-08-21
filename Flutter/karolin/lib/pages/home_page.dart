@@ -49,22 +49,28 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.notifications),
             onPressed: () {
-              context.push('/notification');
+              if (context.mounted) {
+                context.push('/notification');
+              }
             },
           ),
           IconButton(
             icon: const Icon(Icons.shopping_cart),
             onPressed: () {
-              context.push('/cart/pending');
+              if (context.mounted) {
+                context.push('/cart/pending');
+              }
             },
           ),
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () {
-              if (_isLoggedIn) {
-                context.push('/profile');
-              } else {
-                context.push('/login');
+              if (context.mounted) {
+                if (_isLoggedIn) {
+                  context.push('/profile');
+                } else {
+                  context.push('/login');
+                }
               }
             },
           ),

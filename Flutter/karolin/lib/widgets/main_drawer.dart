@@ -48,7 +48,9 @@ class _MainDrawerState extends State<MainDrawer> {
             leading: const Icon(Icons.home),
             title: const Text('Home'),
             onTap: () {
-              context.go('/home');
+              if (context.mounted) {
+                context.go('/home');
+              }
             },
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           ),
@@ -56,7 +58,9 @@ class _MainDrawerState extends State<MainDrawer> {
             leading: const Icon(Icons.notifications),
             title: const Text('Notifications'),
             onTap: () {
-              context.push('/notification');
+              if (context.mounted) {
+                context.push('/notification');
+              }
             },
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           ),
@@ -64,7 +68,9 @@ class _MainDrawerState extends State<MainDrawer> {
             leading: const Icon(Icons.shopping_cart),
             title: const Text('Cart'),
             onTap: () {
-              context.push('/cart/pending');
+              if (context.mounted) {
+                context.push('/cart/pending');
+              }
             },
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           ),
@@ -74,7 +80,9 @@ class _MainDrawerState extends State<MainDrawer> {
               leading: const Icon(Icons.person),
               title: const Text('Profile'),
               onTap: () {
-                context.push('/profile');
+                if (context.mounted) {
+                  context.push('/profile');
+                }
               },
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             ),
@@ -94,7 +102,9 @@ class _MainDrawerState extends State<MainDrawer> {
               leading: const Icon(Icons.login),
               title: const Text('Login'),
               onTap: () {
-                context.push('/login');
+                if (context.mounted) {
+                  context.push('/login');
+                }
               },
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             ),
@@ -102,7 +112,9 @@ class _MainDrawerState extends State<MainDrawer> {
               leading: const Icon(Icons.person_add),
               title: const Text('Register'),
               onTap: () {
-                context.push('/register');
+                if (context.mounted) {
+                  context.push('/register');
+                }
               },
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             ),

@@ -55,43 +55,51 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
   Future<void> _convertLOIToAgreement(int loiId) async {
     try {
       // Show loading indicator
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return const AlertDialog(
-            content: Row(
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(width: 20),
-                Text("Converting to Agreement..."),
-              ],
-            ),
-          );
-        },
-      );
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return const AlertDialog(
+              content: Row(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 20),
+                  Text("Converting to Agreement..."),
+                ],
+              ),
+            );
+          },
+        );
+      }
 
       // Call the service to convert LOI to Agreement
-      final SalesAgreement agreement = await _orderService.convertLOIToAgreement(loiId);
+      await _orderService.convertLOIToAgreement(loiId);
       
       // Hide loading indicator
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
       
       // Show success message and navigate to pending orders page
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Successfully converted to agreement')),
         );
 
         // Navigate to unpaid orders page
-        context.go('/cart/unpaid');
+        if (context.mounted) {
+          context.go('/cart/unpaid');
+        }
       }
     } catch (error) {
       // Hide loading indicator
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
       
       // Show error message
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to convert to agreement: $error')),
         );
@@ -102,21 +110,23 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
   Future<void> _markAgreementAsPaid(int agreementId) async {
     try {
       // Show loading indicator
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return const AlertDialog(
-            content: Row(
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(width: 20),
-                Text("Processing payment..."),
-              ],
-            ),
-          );
-        },
-      );
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return const AlertDialog(
+              content: Row(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 20),
+                  Text("Processing payment..."),
+                ],
+              ),
+            );
+          },
+        );
+      }
 
       // Get the current agreement data first
       final SalesAgreement currentAgreement = await _orderService.getSalesAgreementById(agreementId);
@@ -126,10 +136,12 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
         await _orderService.processPayment(agreementId, currentAgreement.totalAmount ?? 0);
       } catch (paymentError) {
         // Hide loading indicator
-        Navigator.of(context).pop();
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
         
         // Show error message
-        if (context.mounted) {
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to process payment: $paymentError')),
           );
@@ -138,23 +150,29 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
       }
       
       // Hide loading indicator
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
       
       // Show success message and navigate to paid orders page
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Payment processed successfully')),
         );
 
         // Navigate to paid orders page
-        context.go('/cart/paid');
+        if (context.mounted) {
+          context.go('/cart/paid');
+        }
       }
     } catch (error) {
       // Hide loading indicator
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
       
       // Show error message
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to process payment: $error')),
         );
@@ -207,7 +225,11 @@ class _OrderStatusPageState extends State<OrderStatusPage> {
                 const Text('Please login to view order details.'),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () => context.go('/login'),
+                  onPressed: () {
+                    if (context.mounted) {
+                      context.go('/login');
+                    }
+                  },
                   child: const Text('Login'),
                 ),
               ],

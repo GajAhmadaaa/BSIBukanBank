@@ -27,7 +27,7 @@ Public Class LOIMonitor
         End If
     End Sub
 
-    Private Sub BindLOIs()
+        Private Sub BindLOIs()
         ' Connect to database and get LOIs with Pending and ReadyForAgreement status using direct SQL query
         Dim connectionString As String = ConfigurationManager.ConnectionStrings("DefaultConnection").ConnectionString
         Dim lois As New List(Of Object)
@@ -50,12 +50,19 @@ Public Class LOIMonitor
 
                 Using reader As SqlDataReader = cmd.ExecuteReader()
                     While reader.Read()
+                        Dim loiID As Integer = Convert.ToInt32(reader("LOIID"))
+                        Dim stockStatus As String = "N/A"
+                        If reader("Status").ToString() = "Pending" Then
+                            stockStatus = GetStockStatusForLOI(loiID)
+                        End If
+
                         lois.Add(New With {
-                            .LOIID = reader("LOIID"),
+                            .LOIID = loiID,
                             .CustomerName = reader("CustomerName"),
                             .DealerName = reader("DealerName"),
                             .LOIDate = reader("LOIDate"),
-                            .Status = reader("Status")
+                            .Status = reader("Status"),
+                            .StockStatus = stockStatus
                         })
                     End While
                 End Using
@@ -328,5 +335,70 @@ Public Class LOIMonitor
         End Using
         
         Return carCount
+    End Function
+
+    Private Function GetStockStatusForLOI(ByVal loiID As Integer) As String
+        Dim connectionString As String = ConfigurationManager.ConnectionStrings("DefaultConnection").ConnectionString
+        Using conn As New SqlConnection(connectionString)
+            conn.Open()
+            Try
+                Dim dealerId As Integer = 0
+                Dim loiInfoCmd As New SqlCommand("SELECT DealerID FROM LetterOfIntent WHERE LOIID = @LOIID", conn)
+                loiInfoCmd.Parameters.AddWithValue("@LOIID", loiID)
+                Dim dealerIdResult = loiInfoCmd.ExecuteScalar()
+                If dealerIdResult IsNot Nothing AndAlso Not IsDBNull(dealerIdResult) Then
+                    dealerId = Convert.ToInt32(dealerIdResult)
+                Else
+                    Return "Error: Dealer not found."
+                End If
+
+                Dim requiredStock As New Dictionary(Of Integer, Integer)
+                Dim carsCmd As New SqlCommand("SELECT CarID FROM LetterOfIntentDetail WHERE LOIID = @LOIID", conn)
+                carsCmd.Parameters.AddWithValue("@LOIID", loiID)
+                Using reader As SqlDataReader = carsCmd.ExecuteReader()
+                    While reader.Read()
+                        Dim carId As Integer = Convert.ToInt32(reader("CarID"))
+                        If requiredStock.ContainsKey(carId) Then
+                            requiredStock(carId) += 1
+                        Else
+                            requiredStock(carId) = 1
+                        End If
+                    End While
+                End Using
+
+                If requiredStock.Count = 0 Then
+                    Return "No cars in LOI."
+                End If
+
+                Dim shortageMessages As New List(Of String)
+                For Each carEntry As KeyValuePair(Of Integer, Integer) In requiredStock
+                    Dim carId As Integer = carEntry.Key
+                    Dim requiredQty As Integer = carEntry.Value
+                    Dim stockCheckCmd As New SqlCommand("SELECT Stock FROM DealerInventory WHERE DealerID = @DealerID AND CarID = @CarID", conn)
+                    stockCheckCmd.Parameters.AddWithValue("@DealerID", dealerId)
+                    stockCheckCmd.Parameters.AddWithValue("@CarID", carId)
+                    Dim currentStockObj As Object = stockCheckCmd.ExecuteScalar()
+                    Dim currentStock As Integer = If(currentStockObj IsNot Nothing AndAlso Not IsDBNull(currentStockObj), Convert.ToInt32(currentStockObj), 0)
+                    If currentStock < requiredQty Then
+                        Dim carModelCmd As New SqlCommand("SELECT Model FROM Car WHERE CarID = @CarID", conn)
+                        carModelCmd.Parameters.AddWithValue("@CarID", carId)
+                        Dim carModel As String = "Unknown"
+                        Dim carModelObj = carModelCmd.ExecuteScalar()
+                        If carModelObj IsNot Nothing AndAlso Not IsDBNull(carModelObj) Then
+                            carModel = carModelObj.ToString()
+                        End If
+                        shortageMessages.Add(carModel & " (Need " & requiredQty & ", Have " & currentStock & ")")
+                    End If
+                Next
+
+                If shortageMessages.Count > 0 Then
+                    Return "Shortage: " & String.Join(", ", shortageMessages)
+                Else
+                    Return "In Stock"
+                End If
+            Catch ex As Exception
+                Return "Error: " & ex.Message
+            End Try
+        End Using
     End Function
 End Class

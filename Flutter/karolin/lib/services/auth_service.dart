@@ -147,7 +147,7 @@ class AuthService {
           }
         }
       } catch (e) {
-        print('Error fetching customer by email: $e');
+        // Error fetching customer by email
       }
     }
     return null;
@@ -211,7 +211,7 @@ class AuthService {
           }
         }
       } catch (e) {
-        print('Error fetching customer details: $e');
+        // Error fetching customer details
       }
     }
     return null;

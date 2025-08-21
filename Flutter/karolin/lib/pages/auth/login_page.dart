@@ -151,7 +151,9 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 24),
                       TextButton(
                         onPressed: () {
-                          context.push('/register');
+                          if (context.mounted) {
+                            context.push('/register');
+                          }
                         },
                         child: const Text("Don't have an account? Register"),
                       ),

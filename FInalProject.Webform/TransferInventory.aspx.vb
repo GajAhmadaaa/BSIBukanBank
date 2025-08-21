@@ -216,4 +216,50 @@ Public Class TransferInventory
         gvTransferHistory.PageIndex = e.NewPageIndex
         BindTransferHistory()
     End Sub
+
+    Protected Sub ddl_SelectedIndexChanged(ByVal sender As Object, ByVal e As EventArgs)
+        UpdateStockDisplay()
+    End Sub
+
+    Private Sub UpdateStockDisplay()
+        Dim fromDealerID As Integer = 0
+        Dim toDealerID As Integer = 0
+        Dim carID As Integer = 0
+
+        Integer.TryParse(ddlFromDealer.SelectedValue, fromDealerID)
+        Integer.TryParse(ddlToDealer.SelectedValue, toDealerID)
+        Integer.TryParse(ddlCar.SelectedValue, carID)
+
+        If fromDealerID > 0 AndAlso carID > 0 Then
+            lblFromDealerStock.Text = GetStock(fromDealerID, carID).ToString()
+        Else
+            lblFromDealerStock.Text = "-"
+        End If
+
+        If toDealerID > 0 AndAlso carID > 0 Then
+            lblToDealerStock.Text = GetStock(toDealerID, carID).ToString()
+        Else
+            lblToDealerStock.Text = "-"
+        End If
+    End Sub
+
+    Private Function GetStock(ByVal dealerID As Integer, ByVal carID As Integer) As Integer
+        Dim stock As Integer = 0
+        Dim connectionString As String = ConfigurationManager.ConnectionStrings("DefaultConnection").ConnectionString
+        Using conn As New SqlConnection(connectionString)
+            Try
+                conn.Open()
+                Dim cmd As New SqlCommand("SELECT Stock FROM DealerInventory WHERE DealerID = @DealerID AND CarID = @CarID", conn)
+                cmd.Parameters.AddWithValue("@DealerID", dealerID)
+                cmd.Parameters.AddWithValue("@CarID", carID)
+                Dim result As Object = cmd.ExecuteScalar()
+                If result IsNot Nothing AndAlso Not IsDBNull(result) Then
+                    stock = Convert.ToInt32(result)
+                End If
+            Catch ex As Exception
+                litMessage.Text = "<div class=""alert alert-danger"">Error fetching stock: " & ex.Message & "</div>"
+            End Try
+        End Using
+        Return stock
+    End Function
 End Class

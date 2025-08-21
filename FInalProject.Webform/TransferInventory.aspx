@@ -19,23 +19,47 @@
                     <h5 class="card-title mb-0 fw-semibold">New Transfer</h5>
                 </div>
                 <div class="card-body">
-                    <div class="mb-3">
-                        <label for="<%= ddlFromDealer.ClientID %>" class="form-label fw-medium">From Dealer</label>
-                        <asp:DropDownList ID="ddlFromDealer" runat="server" CssClass="form-select" required="required">
-                        </asp:DropDownList>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="<%= ddlToDealer.ClientID %>" class="form-label fw-medium">To Dealer</label>
-                        <asp:DropDownList ID="ddlToDealer" runat="server" CssClass="form-select" required="required">
-                        </asp:DropDownList>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="<%= ddlCar.ClientID %>" class="form-label fw-medium">Car Model</label>
-                        <asp:DropDownList ID="ddlCar" runat="server" CssClass="form-select" required="required">
-                        </asp:DropDownList>
-                    </div>
+                    <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+                        <ContentTemplate>
+                            <div class="mb-3">
+                                <label for="<%= ddlFromDealer.ClientID %>" class="form-label fw-medium">From Dealer</label>
+                                <asp:DropDownList ID="ddlFromDealer" runat="server" CssClass="form-select" required="required" AutoPostBack="true" OnSelectedIndexChanged="ddl_SelectedIndexChanged">
+                                </asp:DropDownList>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="<%= ddlToDealer.ClientID %>" class="form-label fw-medium">To Dealer</label>
+                                <asp:DropDownList ID="ddlToDealer" runat="server" CssClass="form-select" required="required" AutoPostBack="true" OnSelectedIndexChanged="ddl_SelectedIndexChanged">
+                                </asp:DropDownList>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="<%= ddlCar.ClientID %>" class="form-label fw-medium">Car Model</label>
+                                <asp:DropDownList ID="ddlCar" runat="server" CssClass="form-select" required="required" AutoPostBack="true" OnSelectedIndexChanged="ddl_SelectedIndexChanged">
+                                </asp:DropDownList>
+                            </div>
+
+                            <!-- Stock Display -->
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <div class="card text-center bg-light">
+                                        <div class="card-header small">Stock at Source</div>
+                                        <div class="card-body py-2">
+                                            <h4 class="card-title fw-bold mb-0"><asp:Label ID="lblFromDealerStock" runat="server" Text="-" /></h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card text-center bg-light">
+                                        <div class="card-header small">Stock at Destination</div>
+                                        <div class="card-body py-2">
+                                            <h4 class="card-title fw-bold mb-0"><asp:Label ID="lblToDealerStock" runat="server" Text="-" /></h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </ContentTemplate>
+                    </asp:UpdatePanel>
                     
                     <div class="mb-4">
                         <label for="<%= txtQuantity.ClientID %>" class="form-label fw-medium">Quantity</label>

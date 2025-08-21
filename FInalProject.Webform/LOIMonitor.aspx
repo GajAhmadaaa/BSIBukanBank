@@ -29,6 +29,14 @@
                                 <asp:BoundField DataField="DealerName" HeaderText="Dealer" />
                                 <asp:BoundField DataField="LOIDate" HeaderText="LOI Date" DataFormatString="{0:d}" ItemStyle-HorizontalAlign="Center" />
                                 <asp:BoundField DataField="Status" HeaderText="Status" />
+                                <asp:TemplateField HeaderText="Stock Status">
+                                    <ItemTemplate>
+                                        <asp:Label ID="lblStockStatus" runat="server" 
+                                            Text='<%# Eval("StockStatus") %>' 
+                                            ForeColor='<%# If(Eval("StockStatus").ToString().StartsWith("Shortage"), System.Drawing.Color.Red, If(Eval("StockStatus").ToString() = "In Stock", System.Drawing.Color.Green, System.Drawing.Color.Black)) %>'
+                                            Font-Bold='<%# Eval("StockStatus").ToString().StartsWith("Shortage") %>'></asp:Label>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
                                 <asp:TemplateField HeaderText="Actions">
                                     <ItemTemplate>
                                         <asp:Button ID="btnViewDetail" runat="server" CommandName="ViewDetail" 

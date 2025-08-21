@@ -117,7 +117,9 @@ class _PendingPageState extends State<PendingPage> {
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
-                    context.push('/order/loi/${order.id}');
+                    if (context.mounted) {
+                      context.push('/order/loi/${order.id}');
+                    }
                   },
                 ),
               );

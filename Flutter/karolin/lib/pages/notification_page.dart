@@ -176,7 +176,9 @@ class _NotificationPageState extends State<NotificationPage> {
                           }
                           
                           if (notification.loid != null) {
-                            context.push('/order/${notification.loid}');
+                            if (context.mounted) {
+                              context.push('/order/loi/${notification.loid}');
+                            }
                           }
                         },
                       );
@@ -192,7 +194,11 @@ class _NotificationPageState extends State<NotificationPage> {
                   const Text('Please login to view notifications.'),
                   const SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: () => context.go('/login'),
+                    onPressed: () {
+                      if (context.mounted) {
+                        context.go('/login');
+                      }
+                    },
                     child: const Text('Login'),
                   ),
                 ],

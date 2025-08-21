@@ -117,7 +117,9 @@ class _PaidPageState extends State<PaidPage> {
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
-                    context.push('/order/sa/${agreement.id}');
+                    if (context.mounted) {
+                      context.push('/order/sa/${agreement.id}');
+                    }
                   },
                 ),
               );

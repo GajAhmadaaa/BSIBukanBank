@@ -117,7 +117,9 @@ class _UnpaidPageState extends State<UnpaidPage> {
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
-                    context.push('/order/sa/${agreement.id}');
+                    if (context.mounted) {
+                      context.push('/order/sa/${agreement.id}');
+                    }
                   },
                 ),
               );

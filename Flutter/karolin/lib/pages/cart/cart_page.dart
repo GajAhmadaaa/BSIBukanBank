@@ -52,14 +52,20 @@ class _CartPageState extends State<CartPage> {
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) {
           // kalau masih belum pop, arahkan manual
-          context.go('/');
+          if (context.mounted) {
+            context.go('/');
+          }
         }
       },
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Cart'),
           leading: BackButton(
-            onPressed: () => context.go('/home'),
+            onPressed: () {
+              if (context.mounted) {
+                context.go('/home');
+              }
+            },
           ),
         ),
         body: _isLoggedIn
@@ -71,7 +77,11 @@ class _CartPageState extends State<CartPage> {
                     const Text('Please login to view your cart.'),
                     const SizedBox(height: 24),
                     ElevatedButton(
-                      onPressed: () => context.push('/login'),
+                      onPressed: () {
+                        if (context.mounted) {
+                          context.push('/login');
+                        }
+                      },
                       child: const Text('Login'),
                     ),
                   ],
@@ -97,13 +107,19 @@ class _CartPageState extends State<CartPage> {
                 onTap: (index) {
                   switch (index) {
                     case 0:
-                      context.go('/cart/pending');
+                      if (context.mounted) {
+                        context.go('/cart/pending');
+                      }
                       break;
                     case 1:
-                      context.go('/cart/unpaid');
+                      if (context.mounted) {
+                        context.go('/cart/unpaid');
+                      }
                       break;
                     case 2:
-                      context.go('/cart/paid');
+                      if (context.mounted) {
+                        context.go('/cart/paid');
+                      }
                       break;
                   }
                 },

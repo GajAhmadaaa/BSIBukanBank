@@ -181,7 +181,11 @@ class _ProfilePageState extends State<ProfilePage> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: () => context.go('/login'),
+            onPressed: () {
+              if (context.mounted) {
+                context.go('/login');
+              }
+            },
             icon: const Icon(Icons.login),
             label: const Text('Login'),
             style: ElevatedButton.styleFrom(

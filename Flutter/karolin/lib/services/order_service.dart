@@ -36,7 +36,6 @@ class OrderService {
       'PaymentType': 'Cash' // Hardcoded to Cash as per requirements
     };
     
-    print('Sending payment data: $paymentData');
     await _apiService.post('Payment', paymentData);
   }
 
