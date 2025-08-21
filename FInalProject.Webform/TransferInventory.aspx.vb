@@ -121,82 +121,30 @@ Public Class TransferInventory
         Dim carID As Integer = Convert.ToInt32(ddlCar.SelectedValue)
         Dim quantity As Integer = Convert.ToInt32(txtQuantity.Text)
 
-        ' Perform transfer using direct SQL query
+        ' Perform transfer using stored procedure
         Dim connectionString As String = ConfigurationManager.ConnectionStrings("DefaultConnection").ConnectionString
 
         Using conn As New SqlConnection(connectionString)
             Try
                 conn.Open()
                 
-                ' Check if there is enough stock in the source dealer
-                Dim checkCmd As New SqlCommand("
-                    SELECT Stock 
-                    FROM DealerInventory 
-                    WHERE DealerID = @FromDealerID AND CarID = @CarID", conn)
-                checkCmd.Parameters.AddWithValue("@FromDealerID", fromDealerID)
-                checkCmd.Parameters.AddWithValue("@CarID", carID)
+                ' Use the stored procedure for transfer
+                Dim cmd As New SqlCommand("sp_TransferInventoryWithCheck", conn)
+                cmd.CommandType = CommandType.StoredProcedure
+                cmd.Parameters.AddWithValue("@FromDealerID", fromDealerID)
+                cmd.Parameters.AddWithValue("@ToDealerID", toDealerID)
+                cmd.Parameters.AddWithValue("@CarID", carID)
+                cmd.Parameters.AddWithValue("@Quantity", quantity)
                 
-                Dim currentStock As Object = checkCmd.ExecuteScalar()
-                If currentStock Is Nothing OrElse Convert.ToInt32(currentStock) < quantity Then
-                    litMessage.Text = "<div class=""alert alert-danger"">Not enough stock available in the source dealer.</div>"
-                    Return
+                Dim result As Object = cmd.ExecuteScalar()
+                If result IsNot Nothing Then
+                    litMessage.Text = "<div class=""alert alert-success"">" & result.ToString() & "</div>"
                 End If
-                
-                ' Begin transaction
-                Using transaction As SqlTransaction = conn.BeginTransaction()
-                    Try
-                        ' Reduce stock from source dealer
-                        Dim reduceCmd As New SqlCommand("
-                            UPDATE DealerInventory 
-                            SET Stock = Stock - @Quantity
-                            WHERE DealerID = @FromDealerID AND CarID = @CarID", conn, transaction)
-                        reduceCmd.Parameters.AddWithValue("@Quantity", quantity)
-                        reduceCmd.Parameters.AddWithValue("@FromDealerID", fromDealerID)
-                        reduceCmd.Parameters.AddWithValue("@CarID", carID)
-                        reduceCmd.ExecuteNonQuery()
-
-                        ' Increase stock in destination dealer
-                        Dim increaseCmd As New SqlCommand("
-                            IF EXISTS (SELECT 1 FROM DealerInventory WHERE DealerID = @ToDealerID AND CarID = @CarID)
-                            BEGIN
-                                UPDATE DealerInventory 
-                                SET Stock = Stock + @Quantity
-                                WHERE DealerID = @ToDealerID AND CarID = @CarID
-                            END
-                            ELSE
-                            BEGIN
-                                DECLARE @Price MONEY
-                                SELECT @Price = BasePrice FROM Car WHERE CarID = @CarID
-                                
-                                INSERT INTO DealerInventory (DealerID, CarID, Stock, Price, DiscountPercent, FeePercent)
-                                VALUES (@ToDealerID, @CarID, @Quantity, @Price, 0, 0)
-                            END", conn, transaction)
-                        increaseCmd.Parameters.AddWithValue("@Quantity", quantity)
-                        increaseCmd.Parameters.AddWithValue("@ToDealerID", toDealerID)
-                        increaseCmd.Parameters.AddWithValue("@CarID", carID)
-                        increaseCmd.ExecuteNonQuery()
-
-                        ' Record the transfer in InventoryTransfer table
-                        Dim recordCmd As New SqlCommand("
-                            INSERT INTO InventoryTransfer (FromDealerID, ToDealerID, CarID, Quantity, MutationDate)
-                            VALUES (@FromDealerID, @ToDealerID, @CarID, @Quantity, GETDATE())", conn, transaction)
-                        recordCmd.Parameters.AddWithValue("@FromDealerID", fromDealerID)
-                        recordCmd.Parameters.AddWithValue("@ToDealerID", toDealerID)
-                        recordCmd.Parameters.AddWithValue("@CarID", carID)
-                        recordCmd.Parameters.AddWithValue("@Quantity", quantity)
-                        recordCmd.ExecuteNonQuery()
-
-                        ' Commit transaction
-                        transaction.Commit()
-                        litMessage.Text = "<div class=""alert alert-success"">Transfer from " & ddlFromDealer.SelectedItem.Text & " to " & ddlToDealer.SelectedItem.Text & " for " & quantity.ToString() & " of " & ddlCar.SelectedItem.Text & " completed successfully.</div>"
-                    Catch ex As Exception
-                        ' Rollback transaction on error
-                        transaction.Rollback()
-                        Throw
-                    End Try
-                End Using
+            Catch ex As SqlException
+                ' Handle SQL errors (like stock not available)
+                litMessage.Text = "<div class=""alert alert-danger"">Error performing transfer: " & ex.Message & "</div>"
             Catch ex As Exception
-                ' Handle error - in a real application, you might want to log this
+                ' Handle other errors
                 litMessage.Text = "<div class=""alert alert-danger"">Error performing transfer: " & ex.Message & "</div>"
             End Try
         End Using
