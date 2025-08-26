@@ -71,13 +71,18 @@ class AuthService {
         'Password': password,
         'CustomerData': {
           'Name': name,
+          'Email': email, // Email juga harus disertakan di CustomerData
           'Address': '', // Opsional, bisa diisi jika ada di UI
           'PhoneNumber': '' // Opsional, bisa diisi jika ada di UI
         }
       }),
     );
 
-    if (response.statusCode != 201) {
+    if (response.statusCode == 201) {
+      // Success - do nothing, the method will complete successfully
+      return;
+    } else {
+      // Handle different error cases
       throw Exception(_parseErrorMessage(response));
     }
   }

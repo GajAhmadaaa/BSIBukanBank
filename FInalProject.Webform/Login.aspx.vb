@@ -11,7 +11,7 @@ Partial Public Class Login
 
     Protected Sub btnLogin_Click(ByVal sender As Object, ByVal e As EventArgs)
         ' Mock login logic
-        If txtUsername.Text = "admin" AndAlso txtPassword.Text = "password" Then
+        If txtUsername.Text = "salesperson" AndAlso txtPassword.Text = "password" Then
             FormsAuthentication.RedirectFromLoginPage(txtUsername.Text, chkRememberMe.Checked)
         Else
             litMessage.Text = "<div class='alert alert-danger mt-3'>Invalid username or password.</div>"

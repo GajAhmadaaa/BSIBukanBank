@@ -1,3 +1,5 @@
+using FinalProject.BL.DTO;
+using FinalProject.BL.Interfaces;
 using FinalProject.DAL;
 using FinalProject.MVC.ViewModels;
 using Microsoft.AspNetCore.Authentication;
@@ -5,7 +7,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Mail;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace FinalProject.MVC.Controllers
 {
@@ -15,17 +19,23 @@ namespace FinalProject.MVC.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ICustomerBL _customerBL;
+        private readonly IUsmanBL _usmanBL;
 
         public AccountController(
             FinalProjectContext context,
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            ICustomerBL customerBL,
+            IUsmanBL usmanBL)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _customerBL = customerBL;
+            _usmanBL = usmanBL;
             
             // Ensure "customer" role exists
             InitializeRoles().Wait();
@@ -83,7 +93,11 @@ namespace FinalProject.MVC.Controllers
                             await _userManager.AddClaimAsync(user, new Claim("CustomerId", customer.CustomerId.ToString(), ClaimValueTypes.Integer32));
                             
                             // Refresh the sign-in cookie to include the new claim
-                            await _signInManager.RefreshSignInAsync(user);
+                            // Only refresh if user is already signed in
+                            if (User.Identity.IsAuthenticated)
+                            {
+                                await _signInManager.RefreshSignInAsync(user);
+                            }
                         }
                     }
 
@@ -115,7 +129,7 @@ namespace FinalProject.MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Validasi tambahan
+                // Validasi input tambahan
                 if (string.IsNullOrWhiteSpace(model.Name) || 
                     string.IsNullOrWhiteSpace(model.Email) || 
                     string.IsNullOrWhiteSpace(model.Password) ||
@@ -126,69 +140,71 @@ namespace FinalProject.MVC.Controllers
                     return View(model);
                 }
 
-                // Check if email is already used
-                var existingUser = await _userManager.FindByEmailAsync(model.Email);
-                if (existingUser != null)
+                // Validasi tambahan untuk mencegah karakter tidak valid
+                if (!IsValidInput(model.Name) || 
+                    !IsValidInput(model.Email) || 
+                    !IsValidInput(model.PhoneNumber) ||
+                    !IsValidInput(model.Address))
                 {
-                    ModelState.AddModelError("Email", "Email is already taken.");
+                    ModelState.AddModelError(string.Empty, "Invalid characters in input fields.");
                     return View(model);
                 }
 
-                // Check if customer with same email already exists
-                var existingCustomer = await _context.Customers.FirstOrDefaultAsync(c => c.Email == model.Email);
-                if (existingCustomer != null)
+                // Validasi format email
+                if (!IsValidEmail(model.Email))
                 {
-                    ModelState.AddModelError("Email", "Customer with this email already exists.");
+                    ModelState.AddModelError("Email", "Invalid email format.");
                     return View(model);
                 }
 
-                // Create Identity user
-                var user = new IdentityUser { UserName = model.Email, Email = model.Email };
-                var result = await _userManager.CreateAsync(user, model.Password);
-
-                if (result.Succeeded)
+                try
                 {
-                    try
+                    // 1. Buat user di ASP.NET Core Identity
+                    var userRegistrationDto = new RegistrationDTO
                     {
-                        // Assign customer role
-                        var roleResult = await _userManager.AddToRoleAsync(user, "customer");
-                        if (!roleResult.Succeeded)
-                        {
-                            // Log error jika perlu, tapi tetap lanjutkan proses
-                            foreach (var error in roleResult.Errors)
-                            {
-                                ModelState.AddModelError(string.Empty, $"Error assigning role: {error.Description}");
-                            }
-                        }
-
-                        // Create customer record
-                        var customer = new FinalProject.BO.Models.Customer
-                        {
-                            Name = model.Name,
-                            Email = model.Email,
-                            PhoneNumber = model.PhoneNumber,
-                            Address = model.Address
-                        };
-
-                        _context.Customers.Add(customer);
-                        await _context.SaveChangesAsync();
-
-                        // Redirect to login after successful registration
-                        TempData["SuccessMessage"] = "Registration successful. Please log in.";
-                        return RedirectToAction("Login");
-                    }
-                    catch (Exception ex)
+                        Email = model.Email.Trim(),
+                        Password = model.Password,
+                        ConfirmPassword = model.Password
+                    };
+                    
+                    var userCreated = await _usmanBL.RegisterAsync(userRegistrationDto);
+                    if (!userCreated)
                     {
-                        // Jika ada error saat membuat record customer, hapus user yang sudah dibuat
-                        await _userManager.DeleteAsync(user);
-                        ModelState.AddModelError(string.Empty, $"Registration failed: {ex.Message}");
+                        ModelState.AddModelError(string.Empty, "Failed to create user account.");
                         return View(model);
                     }
-                }
 
-                foreach (var error in result.Errors)
+                    // 2. Assign Role "customer" ke user yang baru dibuat
+                    var roleAssigned = await _usmanBL.AddUserToRoleAsync(model.Email.Trim(), "customer");
+                    // Note: Kita tidak return error jika assign role gagal, karena user sudah dibuat.
+                    // Bisa log error ini jika ada sistem logging.
+
+                    // 3. Simpan data customer ke tabel Customer
+                    var customerInsertDto = new CustomerInsertDTO
+                    {
+                        Name = model.Name.Trim(),
+                        Email = model.Email.Trim(),
+                        PhoneNumber = model.PhoneNumber.Trim(),
+                        Address = model.Address.Trim()
+                    };
+
+                    var createdCustomer = await _customerBL.CreateCustomer(customerInsertDto);
+
+                    // Redirect to login after successful registration
+                    TempData["SuccessMessage"] = "Registration successful. Please log in.";
+                    return RedirectToAction("Login");
+                }
+                catch (ArgumentException ex)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    // Tangkap error validasi khusus dari BL/DAL
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                    return View(model);
+                }
+                catch (Exception ex)
+                {
+                    // Tangkap error umum
+                    ModelState.AddModelError(string.Empty, $"Registration failed: {ex.Message}");
+                    return View(model);
                 }
             }
 
@@ -199,6 +215,29 @@ namespace FinalProject.MVC.Controllers
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        // Metode bantuan untuk validasi input
+        private bool IsValidInput(string input)
+        {
+            // Izinkan huruf, angka, spasi, dan beberapa karakter khusus yang umum
+            // Karakter yang diizinkan: huruf (a-z, A-Z), angka (0-9), spasi, dan simbol-simbol umum
+            var allowedPattern = @"^[a-zA-Z0-9\s\-\.\,\@\#\$\%\&\*\(\)\[\]\{\}\;\:\/\?\!\+\=\~`'""\|]*$";
+            return Regex.IsMatch(input, allowedPattern);
+        }
+
+        // Metode bantuan untuk validasi email
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                var mailAddress = new MailAddress(email);
+                return mailAddress.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

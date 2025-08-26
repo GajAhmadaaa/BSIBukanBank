@@ -37,6 +37,13 @@ class _RegisterPageState extends State<RegisterPage> {
         _nameController.text,
       );
       if (mounted) {
+        // Show success message before navigating
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Registration successful! Please login.')),
+        );
+        // Add a small delay before navigating to login
+        await Future.delayed(const Duration(seconds: 1));
+        if (!mounted) return;
         context.go('/login');
       }
     } catch (e) {

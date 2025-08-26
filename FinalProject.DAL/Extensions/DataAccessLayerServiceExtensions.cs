@@ -9,16 +9,15 @@ namespace FinalProject.DAL.Extensions;
 
 public static class DataAccessLayerServiceExtensions
 {
-    public static IServiceCollection AddDataAccessLayerServices(this IServiceCollection services)
+    public static IServiceCollection AddDataAccessLayerServices(this IServiceCollection services, IConfiguration configuration)
     {
         //add entity framework core and sql server
+        var connectionString = configuration.GetConnectionString("FinalProjectConnectionString") ?? 
+                              configuration.GetConnectionString("DefaultConnection") ?? 
+                              "Server=localhost;Database=FinalProjectDB;User Id=sa;Password=Password123;TrustServerCertificate=True;";
+        
         services.AddDbContext<FinalProjectContext>(options =>
-            options.UseSqlServer("Server=localhost;Database=FinalProjectDB;User Id=sa;Password=Password123;TrustServerCertificate=True;"));
-
-        // services.AddDbContext<FinalProjectContext>(options =>
-        //     options.UseSqlServer(services.BuildServiceProvider()
-        //         .GetRequiredService<IConfiguration>()
-        //         .GetConnectionString("FinalProjectConnectionString")));
+            options.UseSqlServer(connectionString));
         
         services.AddIdentity<IdentityUser, IdentityRole>(options =>
         {
